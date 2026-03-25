@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="TaskFlow"/>
+<meta name="theme-color" id="theme-meta" content="#0d0d0f"/>
+<title>TaskFlow</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+[data-theme="dark"]{--bg:#0d0d0f;--surface:#18181c;--surf2:#222228;--surf3:#2a2a32;--border:#2e2e38;--text:#f0f0f2;--muted:#8888a0;--accent:#f59e0b;--danger:#ef4444;--success:#22c55e;--info:#3b82f6;--warn:#f97316;--shadow:none;--overlay:rgba(0,0,0,.72)}
+[data-theme="light"]{--bg:#f3f3f6;--surface:#ffffff;--surf2:#f0f0f4;--surf3:#e6e6ed;--border:#d6d6e0;--text:#1a1a28;--muted:#6a6a84;--accent:#d97706;--danger:#dc2626;--success:#16a34a;--info:#2563eb;--warn:#ea580c;--shadow:0 1px 4px rgba(0,0,0,.07);--overlay:rgba(0,0,0,.55)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+#app{display:flex;flex-direction:column;height:100dvh;height:100vh}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;height:100%;overflow-y:auto;padding:28px 20px;align-items:center;justify-content:center}
+.screen.active{display:flex}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:100%;max-width:400px;box-shadow:var(--shadow)}
+.auth-logo{font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:800;text-align:center;margin-bottom:4px}
+.auth-logo span{color:var(--accent)}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5}
+.auth-tabs{display:flex;background:var(--surf2);border-radius:10px;padding:3px;margin-bottom:18px;gap:3px}
+.auth-tab{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
+.auth-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.setup-step{background:var(--surf2);border-radius:8px;padding:12px 14px;margin-bottom:10px;border-left:3px solid var(--accent)}
+.setup-step p{font-size:13px;color:var(--muted);line-height:1.6}
+.setup-step code{font-size:11px;background:var(--surf3);padding:1px 5px;border-radius:4px;color:var(--accent);font-family:monospace}
+
+/* HEADER */
+#header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 15px;display:flex;align-items:center;gap:9px;padding-top:max(11px,env(safe-area-inset-top))}
+#header h1{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:-.02em;flex:1}
+#header h1 span{color:var(--accent)}
+.sync-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);background:var(--surf2);padding:4px 9px;border-radius:20px;border:1px solid var(--border);white-space:nowrap}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0}
+.sync-dot.syncing{background:var(--warn);animation:pulse .9s infinite}
+.sync-dot.offline{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hdr-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
+.hdr-btn:active{transform:scale(.9)}
+.hdr-btn svg{width:15px;height:15px}
+
+/* NAV */
+#nav{background:var(--surface);border-top:1px solid var(--border);display:flex;padding:4px 0;padding-bottom:max(4px,env(safe-area-inset-bottom));order:3}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;transition:color .2s;-webkit-tap-highlight-color:transparent}
+.nav-btn svg{width:19px;height:19px;stroke-width:1.8}
+.nav-btn.active{color:var(--accent)}
+
+/* CONTENT */
+#content{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.view{display:none;padding:13px;animation:fadeIn .2s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.page-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.02em}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 14px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:active,.btn-ghost:active{transform:scale(.97)}
+.btn-ghost{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:6px 11px;font-size:12px}
+.btn svg{width:13px;height:13px;flex-shrink:0}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.amber::before{background:var(--accent)}
+.stat-card.blue::before{background:var(--info)}
+.stat-card.green::before{background:var(--success)}
+.stat-card.red::before{background:var(--danger)}
+.stat-value{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:800;line-height:1}
+.stat-label{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 13px;display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;box-shadow:var(--shadow);transition:border-color .2s}
+.card:last-child{margin-bottom:0}
+.card-body{flex:1;min-width:0}
+.card-title{font-weight:500;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.card-actions{display:flex;gap:4px;flex-shrink:0}
+.card.overdue{border-color:color-mix(in srgb,var(--danger) 35%,var(--border))}
+
+/* ICON BUTTONS */
+.icon-btn{width:29px;height:29px;border-radius:7px;border:none;background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn svg{width:13px;height:13px}
+.icon-btn.edit:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surf2))}
+.icon-btn.del:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,var(--surf2))}
+.icon-btn.reschedule:hover{color:var(--info);background:color-mix(in srgb,var(--info) 12%,var(--surf2))}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.badge-todo{background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted)}
+.badge-progress{background:color-mix(in srgb,var(--info) 15%,transparent);color:var(--info)}
+.badge-done{background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success)}
+.badge-overdue{background:color-mix(in srgb,var(--danger) 15%,transparent);color:var(--danger)}
+.badge-low{background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success)}
+.badge-medium{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
+.badge-high{background:color-mix(in srgb,var(--danger) 15%,transparent);color:var(--danger)}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 22%,transparent)}
+.tag-input-wrap{display:flex;flex-wrap:wrap;gap:5px;background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;min-height:42px;cursor:text;transition:border-color .15s;align-items:center}
+.tag-input-wrap:focus-within{border-color:var(--accent)}
+.tag-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-size:11px;border:1px solid color-mix(in srgb,var(--accent) 22%,transparent)}
+.tag-chip button{background:none;border:none;color:inherit;cursor:pointer;line-height:1;padding:0;font-size:13px;opacity:.7}
+.tag-bare-input{border:none;background:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;min-width:80px;flex:1}
+
+/* FILTERS */
+.filter-row{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.filter-chip.active{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none}
+.search-input{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px 9px 32px;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--accent)}
+
+/* EMPTY */
+.empty{text-align:center;padding:34px 20px;color:var(--muted)}
+.empty svg{width:38px;height:38px;margin-bottom:9px;opacity:.3}
+.empty p{font-size:13px;line-height:1.6}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:flex-end;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:16px 16px 0 0;padding:17px;width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding-bottom:max(17px,env(safe-area-inset-bottom))}
+.overlay.open .modal{transform:translateY(0)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700}
+.modal-close{width:29px;height:29px;border-radius:50%;border:none;background:var(--surf2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close svg{width:14px;height:14px}
+
+/* FORMS */
+.form-group{margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:68px}
+select option{background:var(--surface)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.form-actions{display:flex;gap:8px;margin-top:15px}
+.form-actions .btn{flex:1;justify-content:center;padding:11px}
+.field-error{font-size:11px;color:var(--danger);margin-top:4px}
+
+/* AVATAR */
+.avatar{width:32px;height:32px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;color:var(--accent);flex-shrink:0}
+
+/* REPORTS */
+.section-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
+.divider{height:1px;background:var(--border);margin:15px 0}
+.streak-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-bottom:13px;box-shadow:var(--shadow)}
+.streak-num{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--accent);line-height:1}
+.streak-label{font-size:12px;color:var(--muted);margin-top:4px}
+.report-bar-wrap{margin-bottom:11px}
+.report-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+.report-bar-track{height:7px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.report-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+.export-card{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
+.export-card:hover{border-color:var(--accent)}
+.export-card svg{width:20px;height:20px;color:var(--accent);margin:0 auto 5px;display:block}
+.export-card p{font-size:12px;font-weight:500}
+.export-card span{font-size:11px;color:var(--muted)}
+
+/* TOAST */
+#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surf3);color:var(--text);padding:8px 18px;border-radius:20px;font-size:12px;border:1px solid var(--border);z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div class="screen" id="screen-setup">
+<div class="auth-card">
+  <div class="auth-logo">Task<span>Flow</span></div>
+  <div class="auth-sub">Connect Supabase for real-time sync across all your devices</div>
+  <div class="setup-step"><p><strong>1.</strong> Go to <code>supabase.com</code> → New project (free tier)</p></div>
+  <div class="setup-step"><p><strong>2.</strong> Tap <em>"View SQL setup"</em> below — run that SQL in your Supabase dashboard</p></div>
+  <div class="setup-step"><p><strong>3.</strong> Copy your <code>Project URL</code> + <code>anon key</code> from <code>Settings → API</code></p></div>
+  <div class="form-group" style="margin-top:14px"><label>Supabase Project URL</label><input id="setup-url" placeholder="https://xxxx.supabase.co" type="url"/></div>
+  <div class="form-group"><label>Supabase Anon Key</label><input id="setup-key" placeholder="eyJh…" type="password"/></div>
+  <div id="setup-error" class="field-error" style="margin-bottom:10px"></div>
+  <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="saveSetup()">Connect &amp; Continue</button>
+  <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="showSQLGuide()">View SQL setup script</button>
+</div>
+</div>
+
+<!-- AUTH SCREEN -->
+<div class="screen" id="screen-auth">
+<div class="auth-card">
+  <div class="auth-logo">Task<span>Flow</span></div>
+  <div class="auth-sub" id="auth-sub">Sign in to sync across all devices</div>
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+    <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+  </div>
+  <div class="form-group"><label>Email</label><input id="auth-email" type="email" placeholder="you@example.com"/></div>
+  <div class="form-group"><label>Password</label><input id="auth-password" type="password" placeholder="••••••••"/></div>
+  <div id="auth-error" class="field-error" style="margin-bottom:10px"></div>
+  <button class="btn btn-primary" id="auth-btn" style="width:100%;justify-content:center;padding:12px" onclick="submitAuth()">Sign In</button>
+  <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px;font-size:11px" onclick="resetSetup()">Change Supabase project</button>
+</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <header id="header">
+    <h1>Task<span>Flow</span></h1>
+    <div class="sync-badge"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Live</span></div>
+    <button class="hdr-btn" onclick="toggleTheme()" title="Theme">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="hdr-btn" onclick="confirmSignOut()" title="Sign out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </header>
+
+  <div id="content">
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card amber"><div class="stat-value" id="s-clients">0</div><div class="stat-label">Clients</div></div>
+        <div class="stat-card blue"><div class="stat-value" id="s-tasks">0</div><div class="stat-label">Tasks</div></div>
+        <div class="stat-card green"><div class="stat-value" id="s-done">0</div><div class="stat-label">Completed</div></div>
+        <div class="stat-card red"><div class="stat-value" id="s-overdue">0</div><div class="stat-label">Overdue</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+        <span style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700">Due Soon</span>
+        <a href="#" onclick="switchView('tasks');return false" style="font-size:12px;color:var(--accent);text-decoration:none">View all →</a>
+      </div>
+      <div id="recent-list"></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="view" id="view-clients">
+      <div class="page-header"><span class="page-title">Clients</span>
+        <button class="btn btn-primary btn-sm" onclick="openClientModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
+        </button>
+      </div>
+      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="client-search" placeholder="Search clients…" oninput="renderClients()"/></div>
+      <div id="clients-list"></div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="view" id="view-tasks">
+      <div class="page-header"><span class="page-title">Tasks</span>
+        <button class="btn btn-primary btn-sm" onclick="openTaskModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
+        </button>
+      </div>
+      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="task-search" placeholder="Search tasks, tags, clients…" oninput="renderTasks()"/></div>
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter(this,'all')">All</button>
+        <button class="filter-chip" data-filter="todo" onclick="setFilter(this,'todo')">To-Do</button>
+        <button class="filter-chip" data-filter="in-progress" onclick="setFilter(this,'in-progress')">In Progress</button>
+        <button class="filter-chip" data-filter="done" onclick="setFilter(this,'done')">Done</button>
+        <button class="filter-chip" data-filter="overdue" onclick="setFilter(this,'overdue')">Overdue</button>
+      </div>
+      <div id="tag-filter-row" class="filter-row"></div>
+      <div id="tasks-list"></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="view" id="view-reports">
+      <div class="page-header"><span class="page-title">Reports</span></div>
+      <div class="section-label">Completion Streak</div>
+      <div class="streak-box"><div class="streak-num" id="streak-num">0</div><div class="streak-label">day streak 🔥</div><div style="font-size:12px;color:var(--muted);margin-top:5px">Best: <span id="streak-best">0</span> days</div></div>
+      <div class="section-label">This Week</div>
+      <div class="stats-grid" id="week-stats" style="margin-bottom:15px"></div>
+      <div class="section-label">Completion by Priority</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow)" id="priority-bars"></div>
+      <div class="section-label">Tasks by Client</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow)" id="client-task-bars"></div>
+      <div class="divider"></div>
+      <div class="section-label">Data Transfer</div>
+      <div class="export-grid">
+        <div class="export-card" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><p>Export CSV</p><span>Spreadsheet</span></div>
+        <div class="export-card" onclick="exportJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>Export JSON</p><span>Full backup</span></div>
+        <div class="export-card" onclick="document.getElementById('import-file').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><p>Import JSON</p><span>Restore backup</span></div>
+        <div class="export-card" onclick="confirmClearData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--danger)"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg><p style="color:var(--danger)">Clear All</p><span>Wipe data</span></div>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(this)"/>
+      <div style="padding-bottom:12px"></div>
+    </div>
+  </div>
+
+  <nav id="nav">
+    <button class="nav-btn active" data-view="dashboard" onclick="switchView('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
+    </button>
+    <button class="nav-btn" data-view="clients" onclick="switchView('clients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Clients
+    </button>
+    <button class="nav-btn" data-view="tasks" onclick="switchView('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks
+    </button>
+    <button class="nav-btn" data-view="reports" onclick="switchView('reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports
+    </button>
+  </nav>
+</div>
+
+<!-- CLIENT MODAL -->
+<div class="overlay" id="client-overlay" onclick="closeIfBackdrop(event,'client-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title" id="client-modal-title">New Client</span><button class="modal-close" onclick="closeModal('client-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <input type="hidden" id="client-id"/>
+  <div class="form-group"><label>Name *</label><input id="c-name" placeholder="John Doe"/></div>
+  <div class="form-group"><label>Company</label><input id="c-company" placeholder="Acme Corp"/></div>
+  <div class="form-row"><div class="form-group"><label>Email</label><input id="c-email" type="email" placeholder="john@acme.com"/></div><div class="form-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="+91 98765 43210"/></div></div>
+  <div class="form-group"><label>Notes</label><textarea id="c-notes" placeholder="Preferences, requirements, context…"></textarea></div>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('client-overlay')">Cancel</button><button class="btn btn-primary" id="client-save-btn" onclick="saveClient()">Save Client</button></div>
+</div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="overlay" id="task-overlay" onclick="closeIfBackdrop(event,'task-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title" id="task-modal-title">New Task</span><button class="modal-close" onclick="closeModal('task-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <input type="hidden" id="task-id"/>
+  <div class="form-group"><label>Title *</label><input id="t-title" placeholder="Design landing page"/></div>
+  <div class="form-group"><label>Description</label><textarea id="t-desc" placeholder="What needs to be done?"></textarea></div>
+  <div class="form-group"><label>Client</label><select id="t-client"><option value="">— No client —</option></select></div>
+  <div class="form-group">
+    <label>Tags <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(Enter or comma)</small></label>
+    <div class="tag-input-wrap" id="tag-input-wrap" onclick="document.getElementById('tag-input').focus()">
+      <input class="tag-bare-input" id="tag-input" placeholder="Add tag…" onkeydown="handleTagKey(event)" oninput="handleTagInput(event)"/>
+    </div>
+  </div>
+  <div class="form-row"><div class="form-group"><label>Priority</label><select id="t-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div><div class="form-group"><label>Status</label><select id="t-status"><option value="todo">To-Do</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div></div>
+  <div class="form-row"><div class="form-group"><label>Due Date</label><input id="t-due" type="date"/></div><div class="form-group"><label>Scheduled Date</label><input id="t-sched" type="date"/></div></div>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('task-overlay')">Cancel</button><button class="btn btn-primary" id="task-save-btn" onclick="saveTask()">Save Task</button></div>
+</div>
+</div>
+
+<!-- RESCHEDULE MODAL -->
+<div class="overlay" id="reschedule-overlay" onclick="closeIfBackdrop(event,'reschedule-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title">Reschedule Task</span><button class="modal-close" onclick="closeModal('reschedule-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <input type="hidden" id="reschedule-id"/>
+  <p id="reschedule-title" style="font-size:13px;color:var(--muted);margin-bottom:13px"></p>
+  <div class="form-group"><label>New Scheduled Date</label><input id="r-sched" type="date"/></div>
+  <div class="form-group"><label>New Due Date</label><input id="r-due" type="date"/></div>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('reschedule-overlay')">Cancel</button><button class="btn btn-primary" id="reschedule-save-btn" onclick="applyReschedule()">Reschedule</button></div>
+</div>
+</div>
+
+<!-- DELETE/CONFIRM MODAL -->
+<div class="overlay" id="delete-overlay" onclick="closeIfBackdrop(event,'delete-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title" id="delete-title">Confirm</span><button class="modal-close" onclick="closeModal('delete-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <p id="delete-msg" style="color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5"></p>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('delete-overlay')">Cancel</button><button class="btn btn-danger" id="confirm-delete-btn">Confirm</button></div>
+</div>
+</div>
+
+<!-- SQL GUIDE MODAL -->
+<div class="overlay" id="sql-overlay" onclick="closeIfBackdrop(event,'sql-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title">Supabase SQL Setup</span><button class="modal-close" onclick="closeModal('sql-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:11px">Run this in Supabase → SQL Editor → New query:</p>
+  <textarea id="sql-code" readonly style="font-family:monospace;font-size:11px;height:260px;background:var(--surf3);border-color:var(--border);color:var(--text);line-height:1.5"></textarea>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('sql-overlay')">Close</button><button class="btn btn-primary" onclick="copySQLToClipboard()">Copy SQL</button></div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────
+// SQL SCHEMA
+// ──────────────────────────────────────────────────────────
+const SETUP_SQL = `-- TaskFlow: run this in Supabase SQL Editor
+
+create table if not exists public.clients (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  name text not null,
+  company text,
+  email text,
+  phone text,
+  notes text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table if not exists public.tasks (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  client_id uuid references public.clients(id) on delete set null,
+  title text not null,
+  description text,
+  status text default 'todo',
+  priority text default 'medium',
+  tags text[] default '{}',
+  due_date date,
+  scheduled_date date,
+  completed_at timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.clients enable row level security;
+alter table public.tasks enable row level security;
+
+create policy "clients_own" on public.clients
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "tasks_own" on public.tasks
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter publication supabase_realtime add table public.clients;
+alter publication supabase_realtime add table public.tasks;
+`;
+
+// ──────────────────────────────────────────────────────────
+// CONFIG & STATE
+// ──────────────────────────────────────────────────────────
+let SUPA_URL = '', SUPA_KEY = '', ACCESS_TOKEN = '';
+let currentUser = null, clients = [], tasks = [], wsConn = null;
+let currentView = 'dashboard', taskFilter = 'all', activeTagFilter = '';
+let currentTags = [];
+
+// ──────────────────────────────────────────────────────────
+// SUPABASE REST (pure fetch, no SDK)
+// ──────────────────────────────────────────────────────────
+const hdr = (extra={}) => ({'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':`Bearer ${ACCESS_TOKEN||SUPA_KEY}`,...extra});
+
+async function supa(path, opts={}) {
+  const r = await fetch(SUPA_URL + path, {...opts, headers:{...hdr(),...(opts.headers||{})}});
+  const b = r.status === 204 ? null : await r.json().catch(()=>null);
+  if (!r.ok) throw new Error(b?.message || b?.error_description || b?.msg || 'Request failed');
+  return b;
+}
+const authPost = (ep, body) => supa('/auth/v1/' + ep, {method:'POST', body:JSON.stringify(body)});
+const dbAll  = (tbl) => supa(`/rest/v1/${tbl}?select=*&order=created_at.desc`);
+const dbIns  = (tbl, row) => supa(`/rest/v1/${tbl}`, {method:'POST', headers:{Prefer:'return=representation'}, body:JSON.stringify(row)});
+const dbUpd  = (tbl, id, row) => supa(`/rest/v1/${tbl}?id=eq.${id}`, {method:'PATCH', headers:{Prefer:'return=representation'}, body:JSON.stringify(row)});
+const dbDel  = (tbl, id) => supa(`/rest/v1/${tbl}?id=eq.${id}`, {method:'DELETE'});
+
+// ──────────────────────────────────────────────────────────
+// SESSION
+// ──────────────────────────────────────────────────────────
+function loadCreds() {
+  SUPA_URL = localStorage.getItem('tf_url')||'';
+  SUPA_KEY = localStorage.getItem('tf_key')||'';
+  ACCESS_TOKEN = localStorage.getItem('tf_at')||'';
+  const u = localStorage.getItem('tf_user');
+  currentUser = u ? JSON.parse(u) : null;
+}
+function saveCreds(s) {
+  ACCESS_TOKEN = s.access_token;
+  currentUser  = s.user;
+  localStorage.setItem('tf_at', s.access_token);
+  localStorage.setItem('tf_rt', s.refresh_token);
+  localStorage.setItem('tf_user', JSON.stringify(s.user));
+}
+async function tryRefresh() {
+  const rt = localStorage.getItem('tf_rt');
+  if (!rt) return false;
+  try {
+    const s = await authPost('token?grant_type=refresh_token', {refresh_token:rt});
+    if (s?.access_token) { saveCreds(s); return true; }
+  } catch(e){}
+  return false;
+}
+
+// ──────────────────────────────────────────────────────────
+// REALTIME  (WebSocket to Supabase realtime)
+// ──────────────────────────────────────────────────────────
+function startRealtime() {
+  if (!SUPA_URL || !ACCESS_TOKEN) return;
+  const wsUrl = SUPA_URL.replace(/^https?/, m => m === 'https' ? 'wss' : 'ws')
+    + '/realtime/v1/websocket?apikey=' + SUPA_KEY + '&vsn=1.0.0';
+  try {
+    wsConn = new WebSocket(wsUrl);
+    let hbTimer;
+    wsConn.onopen = () => {
+      setSyncState('live');
+      hbTimer = setInterval(() => {
+        if (wsConn.readyState === 1)
+          wsConn.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:null}));
+      }, 25000);
+      ['clients','tasks'].forEach(tbl => {
+        wsConn.send(JSON.stringify({
+          topic:`realtime:public:${tbl}`,
+          event:'phx_join',
+          payload:{config:{broadcast:{self:false},postgres_changes:[{event:'*',schema:'public',table:tbl}]}},
+          ref:tbl
+        }));
+      });
+    };
+    wsConn.onmessage = (e) => {
+      const m = JSON.parse(e.data);
+      if (m.event === 'postgres_changes' || m.payload?.type === 'INSERT' || m.payload?.type === 'UPDATE' || m.payload?.type === 'DELETE') {
+        loadAll();
+      }
+    };
+    wsConn.onclose = () => { clearInterval(hbTimer); setSyncState('offline'); setTimeout(() => { if (currentUser) startRealtime(); }, 6000); };
+    wsConn.onerror = () => setSyncState('offline');
+  } catch(e) { setSyncState('offline'); }
+}
+
+// ──────────────────────────────────────────────────────────
+// DATA LOAD
+// ──────────────────────────────────────────────────────────
+async function loadAll() {
+  setSyncState('syncing');
+  try {
+    [clients, tasks] = await Promise.all([dbAll('clients'), dbAll('tasks')]);
+    setSyncState('live');
+    renderCurrentView();
+  } catch(e) { setSyncState('offline'); }
+}
+
+// ──────────────────────────────────────────────────────────
+// SCREEN ROUTING
+// ──────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.getElementById('app').style.display = 'none';
+}
+function showSetupScreen() { showScreen('screen-setup'); }
+function showAuthScreen()  { showScreen('screen-auth'); }
+async function bootApp() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('app').style.display = 'flex';
+  await loadAll();
+  startRealtime();
+  applyTheme(localStorage.getItem('tf_theme') || 'dark');
+}
+async function init() {
+  loadCreds();
+  applyTheme(localStorage.getItem('tf_theme') || 'dark');
+  if (!SUPA_URL || !SUPA_KEY) { showSetupScreen(); return; }
+  if (!ACCESS_TOKEN) { showAuthScreen(); return; }
+  const ok = await tryRefresh();
+  if (!ok && !ACCESS_TOKEN) { showAuthScreen(); return; }
+  await bootApp();
+}
+
+// ──────────────────────────────────────────────────────────
+// SETUP
+// ──────────────────────────────────────────────────────────
+async function saveSetup() {
+  const url = document.getElementById('setup-url').value.trim().replace(/\/$/,'');
+  const key = document.getElementById('setup-key').value.trim();
+  const err = document.getElementById('setup-error');
+  err.textContent = '';
+  if (!url || !key) { err.textContent = 'Both fields are required.'; return; }
+  if (!url.startsWith('https://')) { err.textContent = 'URL must start with https://'; return; }
+  try {
+    await fetch(url + '/rest/v1/', {headers:{'apikey':key}});
+    SUPA_URL = url; SUPA_KEY = key;
+    localStorage.setItem('tf_url', url); localStorage.setItem('tf_key', key);
+    showAuthScreen();
+  } catch(e) { err.textContent = 'Could not connect — check URL and key.'; }
+}
+function resetSetup() {
+  ['tf_url','tf_key','tf_at','tf_rt','tf_user'].forEach(k => localStorage.removeItem(k));
+  SUPA_URL=''; SUPA_KEY=''; ACCESS_TOKEN=''; currentUser=null;
+  showSetupScreen();
+}
+
+// ──────────────────────────────────────────────────────────
+// AUTH
+// ──────────────────────────────────────────────────────────
+let authMode = 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('auth-btn').textContent = mode==='login' ? 'Sign In' : 'Create Account';
+  document.getElementById('auth-sub').textContent = mode==='login' ? 'Sign in to sync across all devices' : 'Create a free account to get started';
+  document.getElementById('auth-error').textContent = '';
+}
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pw    = document.getElementById('auth-password').value;
+  const err   = document.getElementById('auth-error');
+  const btn   = document.getElementById('auth-btn');
+  err.textContent = '';
+  if (!email || !pw) { err.textContent = 'Email and password are required.'; return; }
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    let s;
+    if (authMode === 'login') {
+      s = await authPost('token?grant_type=password', {email, password:pw});
+    } else {
+      const res = await authPost('signup', {email, password:pw});
+      if (res.user && !res.session) {
+        showToast('✓ Check your email to confirm'); btn.disabled=false; btn.textContent='Create Account'; return;
+      }
+      s = res;
+    }
+    if (!s?.access_token) throw new Error('No session returned. Check credentials.');
+    saveCreds(s);
+    await bootApp();
+  } catch(e) {
+    err.textContent = e.message;
+    btn.disabled = false;
+    btn.textContent = authMode==='login' ? 'Sign In' : 'Create Account';
+  }
+}
+function confirmSignOut() {
+  setConfirmModal('Sign out?', 'Sign out of TaskFlow on this device?', 'Sign Out', 'btn-danger', async () => {
+    await authPost('logout', {}).catch(()=>{});
+    ['tf_at','tf_rt','tf_user'].forEach(k => localStorage.removeItem(k));
+    if (wsConn) wsConn.close();
+    currentUser = null;
+    showAuthScreen();
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// NAV
+// ──────────────────────────────────────────────────────────
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelector(`.nav-btn[data-view="${v}"]`).classList.add('active');
+  currentView = v; renderCurrentView();
+}
+function renderCurrentView() {
+  if (currentView==='dashboard') renderDashboard();
+  else if (currentView==='clients') renderClients();
+  else if (currentView==='tasks') renderTasks();
+  else if (currentView==='reports') renderReports();
+}
+
+// ──────────────────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────────────────
+const ini = n => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const fmtD = d => d ? new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+const toDay = () => new Date().toISOString().slice(0,10);
+const isOvd = t => t.status!=='done' && t.due_date && t.due_date < toDay();
+const sdsp  = t => isOvd(t) ? 'overdue' : t.status;
+const SL = {'todo':'To-Do','in-progress':'In Progress','done':'Done','overdue':'Overdue'};
+const PL = {'low':'Low','medium':'Medium','high':'High'};
+const PO = {high:0,medium:1,low:2};
+const cmap = () => Object.fromEntries(clients.map(c=>[c.id,c]));
+
+function setSyncState(s) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (s==='syncing'?' syncing':s==='offline'?' offline':'');
+  lbl.textContent = s==='syncing'?'Syncing':s==='offline'?'Offline':'Live';
+}
+function showToast(msg, d=2400) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),d);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeIfBackdrop(e,id) { if(e.target.id===id) closeModal(id); }
+function setConfirmModal(title, msg, btnText, btnClass, fn) {
+  document.getElementById('delete-title').textContent = title;
+  document.getElementById('delete-msg').textContent = msg;
+  const btn = document.getElementById('confirm-delete-btn');
+  btn.textContent = btnText; btn.className = 'btn ' + btnClass;
+  btn.onclick = fn;
+  openModal('delete-overlay');
+}
+
+// ──────────────────────────────────────────────────────────
+// TAGS
+// ──────────────────────────────────────────────────────────
+function renderTagChips() {
+  const wrap = document.getElementById('tag-input-wrap');
+  const inp  = document.getElementById('tag-input');
+  wrap.querySelectorAll('.tag-chip').forEach(c=>c.remove());
+  currentTags.forEach(tag => {
+    const chip = document.createElement('span'); chip.className='tag-chip';
+    chip.innerHTML=`${tag}<button onclick="removeTag('${tag.replace(/'/g,"\\'")}');event.stopPropagation()" type="button">×</button>`;
+    wrap.insertBefore(chip, inp);
+  });
+}
+function removeTag(tag) { currentTags=currentTags.filter(t=>t!==tag); renderTagChips(); }
+function handleTagKey(e) {
+  const v = e.target.value.trim().replace(/,$/,'');
+  if ((e.key==='Enter'||e.key===',') && v) {
+    e.preventDefault();
+    if (!currentTags.includes(v)) { currentTags.push(v); renderTagChips(); }
+    e.target.value='';
+  } else if (e.key==='Backspace' && !e.target.value && currentTags.length) {
+    currentTags.pop(); renderTagChips();
+  }
+}
+function handleTagInput(e) {
+  if (e.target.value.endsWith(',')) {
+    const v=e.target.value.slice(0,-1).trim();
+    if (v&&!currentTags.includes(v)) { currentTags.push(v); renderTagChips(); }
+    e.target.value='';
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// CLIENTS CRUD
+// ──────────────────────────────────────────────────────────
+function openClientModal(id=null) {
+  document.getElementById('client-id').value=id||'';
+  document.getElementById('client-modal-title').textContent=id?'Edit Client':'New Client';
+  ['c-name','c-company','c-email','c-phone','c-notes'].forEach(f=>document.getElementById(f).value='');
+  if (id) {
+    const c=clients.find(x=>x.id===id);
+    if (c) { document.getElementById('c-name').value=c.name||''; document.getElementById('c-company').value=c.company||''; document.getElementById('c-email').value=c.email||''; document.getElementById('c-phone').value=c.phone||''; document.getElementById('c-notes').value=c.notes||''; }
+  }
+  openModal('client-overlay');
+}
+async function saveClient() {
+  const name=document.getElementById('c-name').value.trim();
+  if (!name) { showToast('⚠ Name is required'); return; }
+  const id=document.getElementById('client-id').value;
+  const btn=document.getElementById('client-save-btn'); btn.disabled=true;
+  const row={name,company:document.getElementById('c-company').value.trim()||null,email:document.getElementById('c-email').value.trim()||null,phone:document.getElementById('c-phone').value.trim()||null,notes:document.getElementById('c-notes').value.trim()||null,updated_at:new Date().toISOString()};
+  try {
+    if (id) { await dbUpd('clients',id,row); showToast('✓ Client updated'); }
+    else { row.user_id=currentUser.id; await dbIns('clients',row); showToast('✓ Client added'); }
+    closeModal('client-overlay'); await loadAll();
+  } catch(e) { showToast('⚠ '+e.message); }
+  btn.disabled=false;
+}
+function deleteClient(id) {
+  const c=clients.find(x=>x.id===id);
+  setConfirmModal('Delete Client',`Delete "${c?.name}"? Related tasks will lose the client link.`,'Delete','btn-danger', async ()=>{
+    try { await dbDel('clients',id); closeModal('delete-overlay'); showToast('Client deleted'); await loadAll(); }
+    catch(e) { showToast('⚠ '+e.message); }
+  });
+}
+function renderClients() {
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  const list=q?clients.filter(c=>c.name.toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q)):clients;
+  const el=document.getElementById('clients-list'); if(!el) return;
+  if (!list.length) { el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>${q?'No clients match.':'No clients yet.<br/>Tap + Add to create one.'}</p></div>`; return; }
+  el.innerHTML=list.map(c=>`<div class="card"><div class="avatar">${ini(c.name)}</div><div class="card-body"><div class="card-title">${c.name}</div><div class="card-meta">${c.company?`<span>🏢 ${c.company}</span>`:''} ${c.email?`<span>✉ ${c.email}</span>`:''} ${c.phone?`<span>📞 ${c.phone}</span>`:''}</div>${c.notes?`<div style="font-size:11px;color:var(--muted);margin-top:5px;font-style:italic;border-left:2px solid var(--border);padding-left:8px;line-height:1.4">${c.notes}</div>`:''}</div><div class="card-actions"><button class="icon-btn edit" onclick="openClientModal('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn del" onclick="deleteClient('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></div>`).join('');
+}
+
+// ──────────────────────────────────────────────────────────
+// TASKS CRUD
+// ──────────────────────────────────────────────────────────
+function openTaskModal(id=null) {
+  document.getElementById('task-id').value=id||'';
+  document.getElementById('task-modal-title').textContent=id?'Edit Task':'New Task';
+  document.getElementById('t-title').value=''; document.getElementById('t-desc').value='';
+  document.getElementById('t-priority').value='medium'; document.getElementById('t-status').value='todo';
+  document.getElementById('t-due').value=''; document.getElementById('t-sched').value=toDay();
+  currentTags=[];
+  const sel=document.getElementById('t-client');
+  sel.innerHTML='<option value="">— No client —</option>'+clients.map(c=>`<option value="${c.id}">${c.name}${c.company?` (${c.company})`:''}</option>`).join('');
+  if (id) {
+    const t=tasks.find(x=>x.id===id);
+    if (t) { document.getElementById('t-title').value=t.title||''; document.getElementById('t-desc').value=t.description||''; document.getElementById('t-client').value=t.client_id||''; document.getElementById('t-priority').value=t.priority||'medium'; document.getElementById('t-status').value=t.status||'todo'; document.getElementById('t-due').value=t.due_date||''; document.getElementById('t-sched').value=t.scheduled_date||''; currentTags=Array.isArray(t.tags)?[...t.tags]:[]; }
+  }
+  renderTagChips();
+  openModal('task-overlay');
+}
+async function saveTask() {
+  const title=document.getElementById('t-title').value.trim();
+  if (!title) { showToast('⚠ Title is required'); return; }
+  const id=document.getElementById('task-id').value;
+  const btn=document.getElementById('task-save-btn'); btn.disabled=true;
+  const clientVal=document.getElementById('t-client').value;
+  const statusVal=document.getElementById('t-status').value;
+  const prevTask=id?tasks.find(x=>x.id===id):null;
+  const nowDone=statusVal==='done'&&(!prevTask||prevTask.status!=='done');
+  const row={title,description:document.getElementById('t-desc').value.trim()||null,client_id:clientVal||null,priority:document.getElementById('t-priority').value,status:statusVal,tags:currentTags,due_date:document.getElementById('t-due').value||null,scheduled_date:document.getElementById('t-sched').value||null,updated_at:new Date().toISOString(),...(nowDone?{completed_at:new Date().toISOString()}:{})};
+  try {
+    if (id) { await dbUpd('tasks',id,row); showToast('✓ Task updated'); }
+    else { row.user_id=currentUser.id; await dbIns('tasks',row); showToast('✓ Task added'); }
+    closeModal('task-overlay'); await loadAll();
+  } catch(e) { showToast('⚠ '+e.message); }
+  btn.disabled=false;
+}
+function deleteTask(id) {
+  const t=tasks.find(x=>x.id===id);
+  setConfirmModal('Delete Task',`Delete "${t?.title}"?`,'Delete','btn-danger', async ()=>{
+    try { await dbDel('tasks',id); closeModal('delete-overlay'); showToast('Task deleted'); await loadAll(); }
+    catch(e) { showToast('⚠ '+e.message); }
+  });
+}
+function openReschedule(id) {
+  const t=tasks.find(x=>x.id===id); if(!t) return;
+  document.getElementById('reschedule-id').value=id;
+  document.getElementById('reschedule-title').textContent=`"${t.title}"`;
+  document.getElementById('r-sched').value=t.scheduled_date||toDay();
+  document.getElementById('r-due').value=t.due_date||'';
+  openModal('reschedule-overlay');
+}
+async function applyReschedule() {
+  const id=document.getElementById('reschedule-id').value;
+  const btn=document.getElementById('reschedule-save-btn'); btn.disabled=true;
+  try {
+    await dbUpd('tasks',id,{scheduled_date:document.getElementById('r-sched').value||null,due_date:document.getElementById('r-due').value||null,updated_at:new Date().toISOString()});
+    closeModal('reschedule-overlay'); showToast('✓ Rescheduled'); await loadAll();
+  } catch(e) { showToast('⚠ '+e.message); }
+  btn.disabled=false;
+}
+function setFilter(el,f) {
+  taskFilter=f; activeTagFilter='';
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active'); renderTasks();
+}
+function setTagFilter(tag) { activeTagFilter=activeTagFilter===tag?'':tag; renderTasks(); }
+
+function renderTasks() {
+  const q=(document.getElementById('task-search')?.value||'').toLowerCase();
+  const cm=cmap();
+  const allTags=[...new Set(tasks.flatMap(t=>t.tags||[]))].sort();
+  const tr=document.getElementById('tag-filter-row');
+  if (tr) tr.innerHTML=allTags.map(tag=>`<button class="filter-chip ${activeTagFilter===tag?'active':''}" onclick="setTagFilter('${tag}')">${tag}</button>`).join('');
+  let filtered=tasks;
+  if (taskFilter==='overdue') filtered=tasks.filter(t=>isOvd(t));
+  else if (taskFilter!=='all') filtered=tasks.filter(t=>t.status===taskFilter&&!isOvd(t));
+  if (activeTagFilter) filtered=filtered.filter(t=>(t.tags||[]).includes(activeTagFilter));
+  if (q) filtered=filtered.filter(t=>{const cl=cm[t.client_id];return t.title.toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q)||(t.tags||[]).some(g=>g.toLowerCase().includes(q))||(cl?.name||'').toLowerCase().includes(q);});
+  filtered.sort((a,b)=>{const ao=isOvd(a),bo=isOvd(b);if(ao&&!bo)return -1;if(!ao&&bo)return 1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date)return -1;if(b.due_date)return 1;return (PO[a.priority]||1)-(PO[b.priority]||1);});
+  const el=document.getElementById('tasks-list'); if(!el) return;
+  if (!filtered.length) { el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><p>No tasks here.</p></div>`; return; }
+  el.innerHTML=filtered.map(t=>{const sd=sdsp(t),cl=cm[t.client_id];const tagHtml=(t.tags||[]).map(g=>`<span class="tag">${g}</span>`).join('');return `<div class="card ${sd==='overdue'?'overdue':''}"><div class="card-body"><div class="card-title">${t.title}</div><div class="card-meta" style="margin-bottom:4px"><span class="badge badge-${sd}">${SL[sd]||sd}</span><span class="badge badge-${t.priority}">${PL[t.priority]||t.priority}</span>${tagHtml}</div><div class="card-meta">${cl?`<span>👤 ${cl.name}</span>`:''} ${t.due_date?`<span>📅 ${fmtD(t.due_date)}</span>`:''} ${t.scheduled_date?`<span>🗓 ${fmtD(t.scheduled_date)}</span>`:''}</div></div><div class="card-actions" style="flex-direction:column"><button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn reschedule" onclick="openReschedule('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><button class="icon-btn del" onclick="deleteTask('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></div>`}).join('');
+}
+
+// ──────────────────────────────────────────────────────────
+// DASHBOARD
+// ──────────────────────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('s-clients').textContent=clients.length;
+  document.getElementById('s-tasks').textContent=tasks.length;
+  document.getElementById('s-done').textContent=tasks.filter(t=>t.status==='done').length;
+  document.getElementById('s-overdue').textContent=tasks.filter(t=>isOvd(t)).length;
+  const t7=new Date(); t7.setDate(t7.getDate()+7);
+  const td=toDay(), t7s=t7.toISOString().slice(0,10);
+  const soon=tasks.filter(t=>t.status!=='done'&&t.due_date&&t.due_date>=td&&t.due_date<=t7s).sort((a,b)=>a.due_date.localeCompare(b.due_date)).slice(0,5);
+  const cm=cmap(), el=document.getElementById('recent-list');
+  if (!soon.length) { el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><p>No tasks due in next 7 days.</p></div>`; return; }
+  el.innerHTML=soon.map(t=>{const cl=cm[t.client_id],sd=sdsp(t);return `<div class="card ${sd==='overdue'?'overdue':''}"><div class="card-body"><div class="card-title">${t.title}</div><div class="card-meta"><span class="badge badge-${t.priority}">${PL[t.priority]}</span>${cl?`<span>👤 ${cl.name}</span>`:''}<span>📅 ${fmtD(t.due_date)}</span></div></div><div class="card-actions"><button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn reschedule" onclick="openReschedule('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div></div>`}).join('');
+}
+
+// ──────────────────────────────────────────────────────────
+// REPORTS
+// ──────────────────────────────────────────────────────────
+function calcStreak() {
+  const dates=[...new Set(tasks.filter(t=>t.completed_at).map(t=>t.completed_at.slice(0,10)))].sort().reverse();
+  if (!dates.length) return {cur:0,best:0};
+  let cur=0,d=new Date();
+  for (let i=0;i<365;i++) {
+    const ds=d.toISOString().slice(0,10);
+    if (dates.includes(ds)) cur++; else if (i>0) break;
+    d.setDate(d.getDate()-1);
+  }
+  let best=1,run=1;
+  for (let i=1;i<dates.length;i++) {
+    const diff=(new Date(dates[i-1])-new Date(dates[i]))/86400000;
+    if (diff===1) {run++;best=Math.max(best,run);} else run=1;
+  }
+  return {cur,best};
+}
+function bar(label,val,tot,color) {
+  const pct=tot?Math.round(val/tot*100):0;
+  return `<div class="report-bar-wrap"><div class="report-bar-label"><span>${label}</span><span>${val}/${tot} (${pct}%)</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+}
+function renderReports() {
+  const {cur,best}=calcStreak();
+  document.getElementById('streak-num').textContent=cur;
+  document.getElementById('streak-best').textContent=best;
+  const now=new Date(),ws=new Date(now);ws.setDate(now.getDate()-now.getDay());
+  const wss=ws.toISOString().slice(0,10);
+  const wt=tasks.filter(t=>t.created_at>=wss).length;
+  const wd=tasks.filter(t=>t.completed_at&&t.completed_at>=wss+'T00:00:00').length;
+  document.getElementById('week-stats').innerHTML=`<div class="stat-card blue"><div class="stat-value">${wt}</div><div class="stat-label">Created</div></div><div class="stat-card green"><div class="stat-value">${wd}</div><div class="stat-label">Completed</div></div>`;
+  document.getElementById('priority-bars').innerHTML=['high','medium','low'].map(p=>{
+    const tot=tasks.filter(t=>t.priority===p).length,done=tasks.filter(t=>t.priority===p&&t.status==='done').length;
+    return bar(PL[p],done,tot,p==='high'?'var(--danger)':p==='medium'?'var(--warn)':'var(--success)');
+  }).join('')||'<p style="font-size:13px;color:var(--muted)">No tasks yet.</p>';
+  const cm=cmap();
+  const cBars=clients.map(c=>{const tot=tasks.filter(t=>t.client_id===c.id).length;if(!tot)return '';const done=tasks.filter(t=>t.client_id===c.id&&t.status==='done').length;return bar(c.name,done,tot,'var(--info)');}).join('');
+  document.getElementById('client-task-bars').innerHTML=cBars||'<p style="font-size:13px;color:var(--muted)">No client tasks yet.</p>';
+}
+
+// ──────────────────────────────────────────────────────────
+// EXPORT / IMPORT
+// ──────────────────────────────────────────────────────────
+function dl(content,name,type) { const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href); }
+function exportCSV() {
+  const cm=cmap();
+  const rows=[['ID','Title','Description','Status','Priority','Tags','Client','Due Date','Scheduled','Created']];
+  tasks.forEach(t=>rows.push([t.id,t.title,t.description||'',t.status,t.priority,(t.tags||[]).join(';'),cm[t.client_id]?.name||'',t.due_date||'',t.scheduled_date||'',t.created_at||'']));
+  dl(rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),`taskflow-${toDay()}.csv`,'text/csv');
+  showToast('✓ CSV exported');
+}
+function exportJSON() {
+  dl(JSON.stringify({clients,tasks,exported_at:new Date().toISOString()},null,2),`taskflow-backup-${toDay()}.json`,'application/json');
+  showToast('✓ JSON exported');
+}
+async function importJSON(input) {
+  const file=input.files[0]; if(!file) return;
+  try {
+    const data=JSON.parse(await file.text());
+    const ic=data.clients||[],it=data.tasks||[];
+    if (!ic.length&&!it.length) { showToast('⚠ Nothing found'); return; }
+    setConfirmModal('Import Data',`Import ${ic.length} clients and ${it.length} tasks?`,'Import','btn-primary', async ()=>{
+      setSyncState('syncing');
+      for (const c of ic) { const {id,...r}=c; r.user_id=currentUser.id; await dbIns('clients',r).catch(()=>{}); }
+      for (const t of it) { const {id,...r}=t; r.user_id=currentUser.id; await dbIns('tasks',r).catch(()=>{}); }
+      closeModal('delete-overlay'); showToast('✓ Import complete'); await loadAll();
+    });
+  } catch(e) { showToast('⚠ Invalid JSON file'); }
+  input.value='';
+}
+function confirmClearData() {
+  setConfirmModal('Delete All Data','Delete ALL clients and tasks? This cannot be undone.','Delete Everything','btn-danger', async ()=>{
+    setSyncState('syncing');
+    for (const t of [...tasks]) await dbDel('tasks',t.id).catch(()=>{});
+    for (const c of [...clients]) await dbDel('clients',c.id).catch(()=>{});
+    closeModal('delete-overlay'); showToast('All data deleted'); await loadAll();
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// THEME
+// ──────────────────────────────────────────────────────────
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme',t);
+  const m=document.getElementById('theme-meta'); if(m) m.content=t==='dark'?'#0d0d0f':'#f3f3f6';
+  localStorage.setItem('tf_theme',t);
+  const icon=document.getElementById('theme-icon');
+  if(icon) icon.innerHTML=t==='dark'?'<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="none" stroke="currentColor"/>':'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
+
+// ──────────────────────────────────────────────────────────
+// SQL GUIDE
+// ──────────────────────────────────────────────────────────
+function showSQLGuide() { document.getElementById('sql-code').value=SETUP_SQL; openModal('sql-overlay'); }
+async function copySQLToClipboard() { try { await navigator.clipboard.writeText(SETUP_SQL); showToast('✓ SQL copied'); } catch(e) { showToast('⚠ Copy failed — select manually'); } }
+
+// PWA
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// BOOT
+init();
+</script>
+</body>
+</html>
