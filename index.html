@@ -555,7 +555,7 @@ async function bootApp() {
 async function init() {
   loadCreds();
   applyTheme(localStorage.getItem('tf_theme') || 'dark');
- // if (!SUPA_URL || !SUPA_KEY) { showSetupScreen(); return; }
+  // credentials hardcoded
   if (!ACCESS_TOKEN) { showAuthScreen(); return; }
   const ok = await tryRefresh();
   if (!ok && !ACCESS_TOKEN) { showAuthScreen(); return; }
