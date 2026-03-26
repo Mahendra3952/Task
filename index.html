@@ -435,7 +435,9 @@ alter publication supabase_realtime add table public.tasks;
 // ──────────────────────────────────────────────────────────
 // CONFIG & STATE
 // ──────────────────────────────────────────────────────────
-let SUPA_URL = '', SUPA_KEY = '', ACCESS_TOKEN = '';
+let SUPA_URL = 'https://smqlpidrzjnmweswwvrs.supabase.co';
+let SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtcWxwaWRyempubXdlc3d3dnJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzI4NDksImV4cCI6MjA5MDAwODg0OX0.XWxOIdOZAOJ0MelBHyzn-_2MaVDixsGlXaXreMw1c38';
+let ACCESS_TOKEN = '';
 let currentUser = null, clients = [], tasks = [], wsConn = null;
 let currentView = 'dashboard', taskFilter = 'all', activeTagFilter = '';
 let currentTags = [];
@@ -553,7 +555,7 @@ async function bootApp() {
 async function init() {
   loadCreds();
   applyTheme(localStorage.getItem('tf_theme') || 'dark');
-  if (!SUPA_URL || !SUPA_KEY) { showSetupScreen(); return; }
+ // if (!SUPA_URL || !SUPA_KEY) { showSetupScreen(); return; }
   if (!ACCESS_TOKEN) { showAuthScreen(); return; }
   const ok = await tryRefresh();
   if (!ok && !ACCESS_TOKEN) { showAuthScreen(); return; }
