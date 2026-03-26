@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="TaskFlow"/>
@@ -10,45 +10,41 @@
 <title>TaskFlow</title>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 [data-theme="dark"]{--bg:#0d0d0f;--surface:#18181c;--surf2:#222228;--surf3:#2a2a32;--border:#2e2e38;--text:#f0f0f2;--muted:#8888a0;--accent:#f59e0b;--danger:#ef4444;--success:#22c55e;--info:#3b82f6;--warn:#f97316;--shadow:none;--overlay:rgba(0,0,0,.72)}
-[data-theme="light"]{--bg:#f3f3f6;--surface:#ffffff;--surf2:#f0f0f4;--surf3:#e6e6ed;--border:#d6d6e0;--text:#1a1a28;--muted:#6a6a84;--accent:#d97706;--danger:#dc2626;--success:#16a34a;--info:#2563eb;--warn:#ea580c;--shadow:0 1px 4px rgba(0,0,0,.07);--overlay:rgba(0,0,0,.55)}
+[data-theme="light"]{--bg:#f3f3f6;--surface:#fff;--surf2:#f0f0f4;--surf3:#e6e6ed;--border:#d6d6e0;--text:#1a1a28;--muted:#6a6a84;--accent:#d97706;--danger:#dc2626;--success:#16a34a;--info:#2563eb;--warn:#ea580c;--shadow:0 1px 4px rgba(0,0,0,.07);--overlay:rgba(0,0,0,.55)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;margin:0;padding:0}
-#app{display:flex;flex-direction:column;height:100%;position:fixed;top:0;left:0;right:0;bottom:0}
+html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+#app{display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0}
 
 /* SCREENS */
 .screen{display:none;flex-direction:column;height:100%;overflow-y:auto;padding:28px 20px;align-items:center;justify-content:center;pointer-events:none}
 .screen.active{display:flex;pointer-events:all}
-.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:100%;max-width:400px;box-shadow:var(--shadow)}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:100%;max-width:400px}
 .auth-logo{font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:800;text-align:center;margin-bottom:4px}
 .auth-logo span{color:var(--accent)}
-.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5}
-.auth-tabs{display:flex;background:var(--surf2);border-radius:10px;padding:3px;margin-bottom:18px;gap:3px}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5}
+.auth-tabs{display:flex;background:var(--surf2);border-radius:10px;padding:3px;margin-bottom:16px;gap:3px}
 .auth-tab{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
 .auth-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.setup-step{background:var(--surf2);border-radius:8px;padding:12px 14px;margin-bottom:10px;border-left:3px solid var(--accent)}
-.setup-step p{font-size:13px;color:var(--muted);line-height:1.6}
-.setup-step code{font-size:11px;background:var(--surf3);padding:1px 5px;border-radius:4px;color:var(--accent);font-family:monospace}
 
 /* HEADER */
-#header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 15px;display:flex;align-items:center;gap:9px;padding-top:max(11px,env(safe-area-inset-top));flex-shrink:0}
-#header h1{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:-.02em;flex:1}
+#header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 14px;display:flex;align-items:center;gap:8px;padding-top:max(11px,env(safe-area-inset-top));flex-shrink:0}
+#header h1{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;letter-spacing:-.02em;flex:1}
 #header h1 span{color:var(--accent)}
-.sync-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);background:var(--surf2);padding:4px 9px;border-radius:20px;border:1px solid var(--border);white-space:nowrap}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0}
+.sync-badge{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);background:var(--surf2);padding:3px 8px;border-radius:20px;border:1px solid var(--border);white-space:nowrap}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:var(--success);flex-shrink:0}
 .sync-dot.syncing{background:var(--warn);animation:pulse .9s infinite}
 .sync-dot.offline{background:var(--danger)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.hdr-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
-.hdr-btn:active{transform:scale(.9)}
-.hdr-btn svg{width:15px;height:15px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.hdr-btn svg{width:14px;height:14px}
 
 /* NAV */
-#nav{background:var(--surface);border-top:1px solid var(--border);display:flex;padding:4px 0;padding-bottom:max(4px,env(safe-area-inset-bottom));flex-shrink:0}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;transition:color .2s;-webkit-tap-highlight-color:transparent}
-.nav-btn svg{width:19px;height:19px;stroke-width:1.8}
+#nav{background:var(--surface);border-top:1px solid var(--border);display:flex;padding:3px 0;padding-bottom:max(3px,env(safe-area-inset-bottom));flex-shrink:0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:8px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;transition:color .2s;-webkit-tap-highlight-color:transparent}
+.nav-btn svg{width:18px;height:18px;stroke-width:1.8}
 .nav-btn.active{color:var(--accent)}
 
 /* CONTENT */
@@ -64,26 +60,29 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:9px 14px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .btn-primary{background:var(--accent);color:#000}
-.btn-primary:active,.btn-ghost:active{transform:scale(.97)}
 .btn-ghost{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
 .btn-danger{background:var(--danger);color:#fff}
-.btn-sm{padding:6px 11px;font-size:12px}
+.btn-success{background:var(--success);color:#fff}
+.btn-info{background:var(--info);color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
 .btn svg{width:13px;height:13px;flex-shrink:0}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:active{transform:scale(.97)}
 
 /* STATS */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .stat-card.amber::before{background:var(--accent)}
 .stat-card.blue::before{background:var(--info)}
 .stat-card.green::before{background:var(--success)}
 .stat-card.red::before{background:var(--danger)}
-.stat-value{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:800;line-height:1}
+.stat-card.purple::before{background:#8b5cf6}
+.stat-value{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;line-height:1}
 .stat-label{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
 
 /* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 13px;display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;box-shadow:var(--shadow);transition:border-color .2s}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 12px;display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;box-shadow:var(--shadow);transition:border-color .2s}
 .card:last-child{margin-bottom:0}
 .card-body{flex:1;min-width:0}
 .card-title{font-weight:500;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -92,12 +91,13 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .card.overdue{border-color:color-mix(in srgb,var(--danger) 35%,var(--border))}
 
 /* ICON BUTTONS */
-.icon-btn{width:29px;height:29px;border-radius:7px;border:none;background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.icon-btn{width:28px;height:28px;border-radius:7px;border:none;background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .icon-btn:active{transform:scale(.9)}
 .icon-btn svg{width:13px;height:13px}
 .icon-btn.edit:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surf2))}
 .icon-btn.del:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,var(--surf2))}
 .icon-btn.reschedule:hover{color:var(--info);background:color-mix(in srgb,var(--info) 12%,var(--surf2))}
+.icon-btn.invoice:hover{color:var(--success);background:color-mix(in srgb,var(--success) 12%,var(--surf2))}
 
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
@@ -108,6 +108,7 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .badge-low{background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success)}
 .badge-medium{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
 .badge-high{background:color-mix(in srgb,var(--danger) 15%,transparent);color:var(--danger)}
+.badge-recurring{background:color-mix(in srgb,#8b5cf6 15%,transparent);color:#8b5cf6}
 
 /* TAGS */
 .tag{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 22%,transparent)}
@@ -115,7 +116,7 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .tag-input-wrap:focus-within{border-color:var(--accent)}
 .tag-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-size:11px;border:1px solid color-mix(in srgb,var(--accent) 22%,transparent)}
 .tag-chip button{background:none;border:none;color:inherit;cursor:pointer;line-height:1;padding:0;font-size:13px;opacity:.7}
-.tag-bare-input{border:none;background:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;min-width:80px;flex:1}
+.tag-bare-input{border:none;background:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;min-width:60px;flex:1}
 
 /* FILTERS */
 .filter-row{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
@@ -125,59 +126,99 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 
 /* SEARCH */
 .search-wrap{position:relative;margin-bottom:10px}
-.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none}
-.search-input{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px 9px 32px;outline:none;transition:border-color .15s}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--muted);pointer-events:none}
+.search-input{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px 9px 31px;outline:none;transition:border-color .15s}
 .search-input:focus{border-color:var(--accent)}
 
 /* EMPTY */
 .empty{text-align:center;padding:34px 20px;color:var(--muted)}
-.empty svg{width:38px;height:38px;margin-bottom:9px;opacity:.3}
+.empty svg{width:36px;height:36px;margin-bottom:9px;opacity:.3}
 .empty p{font-size:13px;line-height:1.6}
 
 /* MODAL */
 .overlay{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:flex-end;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
 .overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border-radius:16px 16px 0 0;padding:17px;width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding-bottom:max(17px,env(safe-area-inset-bottom))}
+.modal{background:var(--surface);border-radius:16px 16px 0 0;padding:16px;width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding-bottom:max(16px,env(safe-area-inset-bottom))}
 .overlay.open .modal{transform:translateY(0)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
-.modal-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700}
-.modal-close{width:29px;height:29px;border-radius:50%;border:none;background:var(--surf2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
-.modal-close svg{width:14px;height:14px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.modal-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.modal-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--surf2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close svg{width:13px;height:13px}
 
 /* FORMS */
-.form-group{margin-bottom:12px}
+.form-group{margin-bottom:11px}
 label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
-input,select,textarea{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;outline:none;transition:border-color .15s}
+input,select,textarea{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;outline:none;transition:border-color .15s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-textarea{resize:vertical;min-height:68px}
+textarea{resize:vertical;min-height:65px}
 select option{background:var(--surface)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.form-actions{display:flex;gap:8px;margin-top:15px}
+.form-actions{display:flex;gap:8px;margin-top:14px}
 .form-actions .btn{flex:1;justify-content:center;padding:11px}
 .field-error{font-size:11px;color:var(--danger);margin-top:4px}
 
 /* AVATAR */
 .avatar{width:32px;height:32px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;color:var(--accent);flex-shrink:0}
 
-/* REPORTS */
+/* SECTION LABEL */
 .section-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
-.divider{height:1px;background:var(--border);margin:15px 0}
-.streak-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-bottom:13px;box-shadow:var(--shadow)}
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dow{text-align:center;font-size:10px;font-weight:600;color:var(--muted);padding:4px 0;text-transform:uppercase}
+.cal-day{min-height:54px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 4px;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
+.cal-day:hover{border-color:var(--accent)}
+.cal-day.today{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.cal-day.other-month{opacity:.4}
+.cal-day-num{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:3px}
+.cal-day.today .cal-day-num{color:var(--accent);font-weight:700}
+.cal-dot{height:5px;border-radius:3px;margin-bottom:2px;font-size:9px;padding:0 3px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#000}
+
+/* REPORTS */
+.streak-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;margin-bottom:12px}
 .streak-num{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--accent);line-height:1}
 .streak-label{font-size:12px;color:var(--muted);margin-top:4px}
 .report-bar-wrap{margin-bottom:11px}
 .report-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
 .report-bar-track{height:7px;background:var(--surf2);border-radius:4px;overflow:hidden}
 .report-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
-.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
-.export-card{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.export-card{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
 .export-card:hover{border-color:var(--accent)}
-.export-card svg{width:20px;height:20px;color:var(--accent);margin:0 auto 5px;display:block}
+.export-card svg{width:19px;height:19px;color:var(--accent);margin:0 auto 5px;display:block}
 .export-card p{font-size:12px;font-weight:500}
 .export-card span{font-size:11px;color:var(--muted)}
 
+/* TEAM */
+.member-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.member-avatar{width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:var(--accent);flex-shrink:0}
+.member-info{flex:1;min-width:0}
+.member-name{font-size:13px;font-weight:500}
+.member-email{font-size:11px;color:var(--muted)}
+.role-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.role-owner{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.role-member{background:color-mix(in srgb,var(--info) 15%,transparent);color:var(--info)}
+.role-pending{background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted)}
+
+/* INVOICE PRINT */
+@media print{
+  body *{visibility:hidden}
+  #invoice-print,#invoice-print *{visibility:visible}
+  #invoice-print{position:fixed;top:0;left:0;width:100%;background:#fff;color:#000;padding:40px;font-size:13px}
+}
+.invoice-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;font-size:13px}
+.invoice-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.invoice-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--accent)}
+.invoice-table{width:100%;border-collapse:collapse;font-size:12px}
+.invoice-table th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase}
+.invoice-table td{padding:8px 6px;border-bottom:1px solid var(--border)}
+.invoice-total{display:flex;justify-content:flex-end;margin-top:14px;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+
 /* TOAST */
-#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surf3);color:var(--text);padding:8px 18px;border-radius:20px;font-size:12px;border:1px solid var(--border);z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surf3);color:var(--text);padding:8px 18px;border-radius:20px;font-size:12px;border:1px solid var(--border);z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 ::-webkit-scrollbar{width:3px}
@@ -186,22 +227,6 @@ select option{background:var(--surface)}
 </style>
 </head>
 <body>
-
-<!-- SETUP SCREEN -->
-<div class="screen" id="screen-setup">
-<div class="auth-card">
-  <div class="auth-logo">Task<span>Flow</span></div>
-  <div class="auth-sub">Connect Supabase for real-time sync across all your devices</div>
-  <div class="setup-step"><p><strong>1.</strong> Go to <code>supabase.com</code> → New project (free tier)</p></div>
-  <div class="setup-step"><p><strong>2.</strong> Tap <em>"View SQL setup"</em> below — run that SQL in your Supabase dashboard</p></div>
-  <div class="setup-step"><p><strong>3.</strong> Copy your <code>Project URL</code> + <code>anon key</code> from <code>Settings → API</code></p></div>
-  <div class="form-group" style="margin-top:14px"><label>Supabase Project URL</label><input id="setup-url" placeholder="https://xxxx.supabase.co" type="url"/></div>
-  <div class="form-group"><label>Supabase Anon Key</label><input id="setup-key" placeholder="eyJh…" type="password"/></div>
-  <div id="setup-error" class="field-error" style="margin-bottom:10px"></div>
-  <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="saveSetup()">Connect &amp; Continue</button>
-  <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="showSQLGuide()">View SQL setup script</button>
-</div>
-</div>
 
 <!-- AUTH SCREEN -->
 <div class="screen" id="screen-auth">
@@ -212,11 +237,10 @@ select option{background:var(--surface)}
     <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
     <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
   </div>
-  <div class="form-group"><label>Email</label><input id="auth-email" type="email" placeholder="you@example.com"/></div>
+  <div class="form-group"><label>Email</label><input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"/></div>
   <div class="form-group"><label>Password</label><input id="auth-password" type="password" placeholder="••••••••"/></div>
   <div id="auth-error" class="field-error" style="margin-bottom:10px"></div>
   <button class="btn btn-primary" id="auth-btn" style="width:100%;justify-content:center;padding:12px" onclick="submitAuth()">Sign In</button>
-  <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:8px;font-size:11px" onclick="resetSetup()">Change Supabase project</button>
 </div>
 </div>
 
@@ -225,12 +249,8 @@ select option{background:var(--surface)}
   <header id="header">
     <h1>Task<span>Flow</span></h1>
     <div class="sync-badge"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Live</span></div>
-    <button class="hdr-btn" onclick="toggleTheme()" title="Theme">
-      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    </button>
-    <button class="hdr-btn" onclick="confirmSignOut()" title="Sign out">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    </button>
+    <button class="hdr-btn" onclick="toggleTheme()"><svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    <button class="hdr-btn" onclick="confirmSignOut()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
   </header>
 
   <div id="content">
@@ -252,9 +272,7 @@ select option{background:var(--surface)}
     <!-- CLIENTS -->
     <div class="view" id="view-clients">
       <div class="page-header"><span class="page-title">Clients</span>
-        <button class="btn btn-primary btn-sm" onclick="openClientModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
-        </button>
+        <button class="btn btn-primary btn-sm" onclick="openClientModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
       </div>
       <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="client-search" placeholder="Search clients…" oninput="renderClients()"/></div>
       <div id="clients-list"></div>
@@ -263,43 +281,59 @@ select option{background:var(--surface)}
     <!-- TASKS -->
     <div class="view" id="view-tasks">
       <div class="page-header"><span class="page-title">Tasks</span>
-        <button class="btn btn-primary btn-sm" onclick="openTaskModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
-        </button>
+        <button class="btn btn-primary btn-sm" onclick="openTaskModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
       </div>
-      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="task-search" placeholder="Search tasks, tags, clients…" oninput="renderTasks()"/></div>
+      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="task-search" placeholder="Search tasks, tags…" oninput="renderTasks()"/></div>
       <div class="filter-row">
         <button class="filter-chip active" data-filter="all" onclick="setFilter(this,'all')">All</button>
         <button class="filter-chip" data-filter="todo" onclick="setFilter(this,'todo')">To-Do</button>
         <button class="filter-chip" data-filter="in-progress" onclick="setFilter(this,'in-progress')">In Progress</button>
         <button class="filter-chip" data-filter="done" onclick="setFilter(this,'done')">Done</button>
         <button class="filter-chip" data-filter="overdue" onclick="setFilter(this,'overdue')">Overdue</button>
+        <button class="filter-chip" data-filter="mine" onclick="setFilter(this,'mine')">Mine</button>
       </div>
       <div id="tag-filter-row" class="filter-row"></div>
       <div id="tasks-list"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="view" id="view-calendar">
+      <div class="cal-nav">
+        <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">‹</button>
+        <span class="cal-month" id="cal-month-label"></span>
+        <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div style="margin-top:14px" id="cal-day-tasks"></div>
+    </div>
+
+    <!-- TEAM -->
+    <div class="view" id="view-team">
+      <div class="page-header"><span class="page-title">Team</span></div>
+      <div id="team-content"></div>
     </div>
 
     <!-- REPORTS -->
     <div class="view" id="view-reports">
       <div class="page-header"><span class="page-title">Reports</span></div>
       <div class="section-label">Completion Streak</div>
-      <div class="streak-box"><div class="streak-num" id="streak-num">0</div><div class="streak-label">day streak 🔥</div><div style="font-size:12px;color:var(--muted);margin-top:5px">Best: <span id="streak-best">0</span> days</div></div>
+      <div class="streak-box"><div class="streak-num" id="streak-num">0</div><div class="streak-label">day streak 🔥</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Best: <span id="streak-best">0</span> days</div></div>
       <div class="section-label">This Week</div>
-      <div class="stats-grid" id="week-stats" style="margin-bottom:15px"></div>
-      <div class="section-label">Completion by Priority</div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow)" id="priority-bars"></div>
-      <div class="section-label">Tasks by Client</div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow)" id="client-task-bars"></div>
+      <div class="stats-grid" id="week-stats" style="margin-bottom:14px"></div>
+      <div class="section-label">By Priority</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px" id="priority-bars"></div>
+      <div class="section-label">By Client</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px" id="client-task-bars"></div>
       <div class="divider"></div>
-      <div class="section-label">Data Transfer</div>
+      <div class="section-label">Data</div>
       <div class="export-grid">
-        <div class="export-card" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><p>Export CSV</p><span>Spreadsheet</span></div>
+        <div class="export-card" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Export CSV</p><span>Tasks data</span></div>
         <div class="export-card" onclick="exportJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>Export JSON</p><span>Full backup</span></div>
-        <div class="export-card" onclick="document.getElementById('import-file').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><p>Import JSON</p><span>Restore backup</span></div>
-        <div class="export-card" onclick="confirmClearData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--danger)"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg><p style="color:var(--danger)">Clear All</p><span>Wipe data</span></div>
+        <div class="export-card" onclick="document.getElementById('import-file').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><p>Import JSON</p><span>Restore</span></div>
+        <div class="export-card" onclick="confirmClearData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--danger)"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg><p style="color:var(--danger)">Clear All</p><span>Wipe data</span></div>
       </div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(this)"/>
-      <div style="padding-bottom:12px"></div>
+      <div style="padding-bottom:10px"></div>
     </div>
   </div>
 
@@ -308,10 +342,16 @@ select option{background:var(--surface)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
     </button>
     <button class="nav-btn" data-view="clients" onclick="switchView('clients')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Clients
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients
     </button>
     <button class="nav-btn" data-view="tasks" onclick="switchView('tasks')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks
+    </button>
+    <button class="nav-btn" data-view="calendar" onclick="switchView('calendar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar
+    </button>
+    <button class="nav-btn" data-view="team" onclick="switchView('team')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Team
     </button>
     <button class="nav-btn" data-view="reports" onclick="switchView('reports')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports
@@ -326,8 +366,15 @@ select option{background:var(--surface)}
   <input type="hidden" id="client-id"/>
   <div class="form-group"><label>Name *</label><input id="c-name" placeholder="John Doe"/></div>
   <div class="form-group"><label>Company</label><input id="c-company" placeholder="Acme Corp"/></div>
-  <div class="form-row"><div class="form-group"><label>Email</label><input id="c-email" type="email" placeholder="john@acme.com"/></div><div class="form-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="+91 98765 43210"/></div></div>
-  <div class="form-group"><label>Notes</label><textarea id="c-notes" placeholder="Preferences, requirements, context…"></textarea></div>
+  <div class="form-row">
+    <div class="form-group"><label>Email</label><input id="c-email" type="email" placeholder="john@acme.com"/></div>
+    <div class="form-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="+91 98765 43210"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Rate (₹/hr)</label><input id="c-rate" type="number" placeholder="0"/></div>
+    <div class="form-group"><label>Currency</label><select id="c-currency"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+  </div>
+  <div class="form-group"><label>Notes</label><textarea id="c-notes" placeholder="Client preferences, requirements…"></textarea></div>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('client-overlay')">Cancel</button><button class="btn btn-primary" id="client-save-btn" onclick="saveClient()">Save Client</button></div>
 </div>
 </div>
@@ -339,15 +386,28 @@ select option{background:var(--surface)}
   <input type="hidden" id="task-id"/>
   <div class="form-group"><label>Title *</label><input id="t-title" placeholder="Design landing page"/></div>
   <div class="form-group"><label>Description</label><textarea id="t-desc" placeholder="What needs to be done?"></textarea></div>
-  <div class="form-group"><label>Client</label><select id="t-client"><option value="">— No client —</option></select></div>
+  <div class="form-row">
+    <div class="form-group"><label>Client</label><select id="t-client"><option value="">— No client —</option></select></div>
+    <div class="form-group"><label>Assignee</label><select id="t-assignee"><option value="">— Unassigned —</option></select></div>
+  </div>
   <div class="form-group">
     <label>Tags <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(Enter or comma)</small></label>
     <div class="tag-input-wrap" id="tag-input-wrap" onclick="document.getElementById('tag-input').focus()">
       <input class="tag-bare-input" id="tag-input" placeholder="Add tag…" onkeydown="handleTagKey(event)" oninput="handleTagInput(event)"/>
     </div>
   </div>
-  <div class="form-row"><div class="form-group"><label>Priority</label><select id="t-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div><div class="form-group"><label>Status</label><select id="t-status"><option value="todo">To-Do</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div></div>
-  <div class="form-row"><div class="form-group"><label>Due Date</label><input id="t-due" type="date"/></div><div class="form-group"><label>Scheduled Date</label><input id="t-sched" type="date"/></div></div>
+  <div class="form-row">
+    <div class="form-group"><label>Priority</label><select id="t-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+    <div class="form-group"><label>Status</label><select id="t-status"><option value="todo">To-Do</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Due Date</label><input id="t-due" type="date"/></div>
+    <div class="form-group"><label>Scheduled</label><input id="t-sched" type="date"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Recurrence</label><select id="t-recurrence"><option value="none">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+    <div class="form-group"><label>Hours (for invoice)</label><input id="t-hours" type="number" placeholder="0" step="0.5"/></div>
+  </div>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('task-overlay')">Cancel</button><button class="btn btn-primary" id="task-save-btn" onclick="saveTask()">Save Task</button></div>
 </div>
 </div>
@@ -355,30 +415,56 @@ select option{background:var(--surface)}
 <!-- RESCHEDULE MODAL -->
 <div class="overlay" id="reschedule-overlay" onclick="closeIfBackdrop(event,'reschedule-overlay')">
 <div class="modal">
-  <div class="modal-header"><span class="modal-title">Reschedule Task</span><button class="modal-close" onclick="closeModal('reschedule-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal-header"><span class="modal-title">Reschedule</span><button class="modal-close" onclick="closeModal('reschedule-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
   <input type="hidden" id="reschedule-id"/>
-  <p id="reschedule-title" style="font-size:13px;color:var(--muted);margin-bottom:13px"></p>
+  <p id="reschedule-title" style="font-size:13px;color:var(--muted);margin-bottom:12px"></p>
   <div class="form-group"><label>New Scheduled Date</label><input id="r-sched" type="date"/></div>
   <div class="form-group"><label>New Due Date</label><input id="r-due" type="date"/></div>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('reschedule-overlay')">Cancel</button><button class="btn btn-primary" id="reschedule-save-btn" onclick="applyReschedule()">Reschedule</button></div>
 </div>
 </div>
 
-<!-- DELETE/CONFIRM MODAL -->
-<div class="overlay" id="delete-overlay" onclick="closeIfBackdrop(event,'delete-overlay')">
+<!-- INVOICE MODAL -->
+<div class="overlay" id="invoice-overlay" onclick="closeIfBackdrop(event,'invoice-overlay')">
 <div class="modal">
-  <div class="modal-header"><span class="modal-title" id="delete-title">Confirm</span><button class="modal-close" onclick="closeModal('delete-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <p id="delete-msg" style="color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5"></p>
-  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('delete-overlay')">Cancel</button><button class="btn btn-danger" id="confirm-delete-btn">Confirm</button></div>
+  <div class="modal-header"><span class="modal-title">Invoice</span>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="printInvoice()">🖨 Print</button>
+      <button class="modal-close" onclick="closeModal('invoice-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+  <div id="invoice-print">
+    <div class="invoice-box" id="invoice-content"></div>
+  </div>
+</div>
+</div>
+
+<!-- TEAM INVITE MODAL -->
+<div class="overlay" id="invite-overlay" onclick="closeIfBackdrop(event,'invite-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title">Invite Member</span><button class="modal-close" onclick="closeModal('invite-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="form-group"><label>Email Address</label><input id="invite-email" type="email" placeholder="teammate@example.com"/></div>
+  <div class="form-group"><label>Name (optional)</label><input id="invite-name" placeholder="Their name"/></div>
+  <div id="invite-error" class="field-error" style="margin-bottom:8px"></div>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('invite-overlay')">Cancel</button><button class="btn btn-primary" id="invite-save-btn" onclick="inviteMember()">Send Invite</button></div>
+</div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="confirm-overlay" onclick="closeIfBackdrop(event,'confirm-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title" id="confirm-title">Confirm</span><button class="modal-close" onclick="closeModal('confirm-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <p id="confirm-msg" style="color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.5"></p>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('confirm-overlay')">Cancel</button><button class="btn" id="confirm-action-btn">Confirm</button></div>
 </div>
 </div>
 
 <!-- SQL GUIDE MODAL -->
 <div class="overlay" id="sql-overlay" onclick="closeIfBackdrop(event,'sql-overlay')">
 <div class="modal">
-  <div class="modal-header"><span class="modal-title">Supabase SQL Setup</span><button class="modal-close" onclick="closeModal('sql-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:11px">Run this in Supabase → SQL Editor → New query:</p>
-  <textarea id="sql-code" readonly style="font-family:monospace;font-size:11px;height:260px;background:var(--surf3);border-color:var(--border);color:var(--text);line-height:1.5"></textarea>
+  <div class="modal-header"><span class="modal-title">SQL Setup</span><button class="modal-close" onclick="closeModal('sql-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Run in Supabase → SQL Editor → New query:</p>
+  <textarea id="sql-code" readonly style="font-family:monospace;font-size:10px;height:240px;background:var(--surf3);color:var(--text);line-height:1.5"></textarea>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('sql-overlay')">Close</button><button class="btn btn-primary" onclick="copySQLToClipboard()">Copy SQL</button></div>
 </div>
 </div>
@@ -387,159 +473,193 @@ select option{background:var(--surface)}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
 // SQL SCHEMA
-// ──────────────────────────────────────────────────────────
-const SETUP_SQL = `-- TaskFlow: run this in Supabase SQL Editor
+// ═══════════════════════════════════════════════════════════════
+const SETUP_SQL = `-- TaskFlow Full Schema (run in Supabase SQL Editor)
 
 create table if not exists public.clients (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users on delete cascade not null,
-  name text not null,
-  company text,
-  email text,
-  phone text,
-  notes text,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  name text not null, company text, email text, phone text, notes text,
+  rate numeric default 0, currency text default 'INR',
+  created_at timestamptz default now(), updated_at timestamptz default now()
 );
 
 create table if not exists public.tasks (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users on delete cascade not null,
   client_id uuid references public.clients(id) on delete set null,
-  title text not null,
-  description text,
-  status text default 'todo',
-  priority text default 'medium',
+  title text not null, description text,
+  status text default 'todo', priority text default 'medium',
   tags text[] default '{}',
-  due_date date,
-  scheduled_date date,
+  assignee_id text, assignee_name text,
+  recurrence text default 'none',
+  hours numeric default 0,
+  due_date date, scheduled_date date,
   completed_at timestamptz,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  created_at timestamptz default now(), updated_at timestamptz default now()
 );
 
+create table if not exists public.teams (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  owner_id uuid references auth.users on delete cascade not null,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.team_members (
+  id uuid default gen_random_uuid() primary key,
+  team_id uuid references public.teams on delete cascade not null,
+  user_id uuid references auth.users on delete cascade,
+  email text not null, name text,
+  role text default 'member',
+  status text default 'pending',
+  invite_token text unique default gen_random_uuid()::text,
+  created_at timestamptz default now(),
+  unique(team_id, email)
+);
+
+-- RLS
 alter table public.clients enable row level security;
 alter table public.tasks enable row level security;
+alter table public.teams enable row level security;
+alter table public.team_members enable row level security;
 
-create policy "clients_own" on public.clients
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "clients_own" on public.clients;
+drop policy if exists "tasks_own" on public.tasks;
+create policy "clients_own" on public.clients for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "tasks_own" on public.tasks for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "teams_own" on public.teams for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy "team_members_view" on public.team_members for select using (auth.uid() = user_id or team_id in (select id from public.teams where owner_id = auth.uid()));
+create policy "team_members_manage" on public.team_members for all using (team_id in (select id from public.teams where owner_id = auth.uid()));
 
-create policy "tasks_own" on public.tasks
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
+-- Realtime
 alter publication supabase_realtime add table public.clients;
 alter publication supabase_realtime add table public.tasks;
+alter publication supabase_realtime add table public.teams;
+alter publication supabase_realtime add table public.team_members;
 `;
 
-// ──────────────────────────────────────────────────────────
-// CONFIG & STATE
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE + STATE
+// ═══════════════════════════════════════════════════════════════
 const SUPA_URL = 'https://smqlpidrzjnmweswwvrs.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtcWxwaWRyempubXdlc3d3dnJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzI4NDksImV4cCI6MjA5MDAwODg0OX0.XWxOIdOZAOJ0MelBHyzn-_2MaVDixsGlXaXreMw1c38';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-let currentUser = null, clients = [], tasks = [], wsConn = null;
-let currentView = 'dashboard', taskFilter = 'all', activeTagFilter = '';
-let currentTags = [];
 
-// ──────────────────────────────────────────────────────────
-// SUPABASE SDK WRAPPERS
-// ──────────────────────────────────────────────────────────
-async function dbAll(tbl) {
-  const {data, error} = await sb.from(tbl).select('*').order('created_at', {ascending:false});
+let currentUser = null;
+let clients = [], tasks = [], teams = [], teamMembers = [];
+let currentView = 'dashboard', taskFilter = 'all', activeTagFilter = '';
+let currentTags = [], calendarDate = new Date(), selectedCalDay = null;
+
+// ═══════════════════════════════════════════════════════════════
+// DB HELPERS
+// ═══════════════════════════════════════════════════════════════
+async function dbAll(tbl, extra = '') {
+  const { data, error } = await sb.from(tbl).select('*' + extra).order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
-  return data;
+  return data || [];
 }
 async function dbIns(tbl, row) {
-  const {data, error} = await sb.from(tbl).insert(row).select();
+  const { data, error } = await sb.from(tbl).insert(row).select();
   if (error) throw new Error(error.message);
   return data;
 }
 async function dbUpd(tbl, id, row) {
-  const {data, error} = await sb.from(tbl).update(row).eq('id', id).select();
+  const { data, error } = await sb.from(tbl).update(row).eq('id', id).select();
   if (error) throw new Error(error.message);
   return data;
 }
 async function dbDel(tbl, id) {
-  const {error} = await sb.from(tbl).delete().eq('id', id);
+  const { error } = await sb.from(tbl).delete().eq('id', id);
   if (error) throw new Error(error.message);
 }
 
-// ──────────────────────────────────────────────────────────
-// SESSION (handled by Supabase SDK automatically)
-// ──────────────────────────────────────────────────────────
-function loadCreds() {
-  // SDK manages session in localStorage automatically
-}
-function saveCreds(s) {
-  currentUser = s.user;
-}
-async function tryRefresh() {
-  const { data } = await sb.auth.getSession();
-  if (data?.session) {
-    currentUser = data.session.user;
-    return true;
-  }
-  return false;
-}
-
-// ──────────────────────────────────────────────────────────
-// REALTIME (Supabase SDK)
-// ──────────────────────────────────────────────────────────
-function startRealtime() {
-  try {
-    sb.channel('taskflow-changes')
-      .on('postgres_changes', {event:'*', schema:'public', table:'clients'}, () => loadAll())
-      .on('postgres_changes', {event:'*', schema:'public', table:'tasks'},   () => loadAll())
-      .subscribe(status => {
-        if (status === 'SUBSCRIBED') setSyncState('live');
-        else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') setSyncState('offline');
-        else setSyncState('syncing');
-      });
-  } catch(e) { setSyncState('offline'); }
-}
-
-// ──────────────────────────────────────────────────────────
-// DATA LOAD
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// LOAD ALL DATA
+// ═══════════════════════════════════════════════════════════════
 async function loadAll() {
   setSyncState('syncing');
   try {
-    [clients, tasks] = await Promise.all([dbAll('clients'), dbAll('tasks')]);
+    [clients, tasks, teams, teamMembers] = await Promise.all([
+      dbAll('clients'), dbAll('tasks'), dbAll('teams'), dbAll('team_members')
+    ]);
     setSyncState('live');
-  } catch(e) {
+  } catch (e) {
     setSyncState('offline');
-    // If tables missing, show helpful message
-    if (e.message && e.message.includes('relation') || e.message.includes('does not exist')) {
-      showToast('⚠ Run the SQL setup in Supabase first!', 5000);
-    }
-    clients = clients || [];
-    tasks = tasks || [];
+    clients = clients || []; tasks = tasks || [];
+    teams = teams || []; teamMembers = teamMembers || [];
   }
   renderCurrentView();
 }
 
-// ──────────────────────────────────────────────────────────
-// SCREEN ROUTING
-// ──────────────────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = 'none';
+// ═══════════════════════════════════════════════════════════════
+// REALTIME
+// ═══════════════════════════════════════════════════════════════
+function startRealtime() {
+  try {
+    sb.channel('tf-all')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, loadAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, loadAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, loadAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_members' }, loadAll)
+      .subscribe(s => {
+        if (s === 'SUBSCRIBED') setSyncState('live');
+        else if (s === 'CLOSED' || s === 'CHANNEL_ERROR') setSyncState('offline');
+      });
+  } catch (e) { setSyncState('offline'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════
+let authMode = 'login';
+function switchAuthTab(m) {
+  authMode = m;
+  document.getElementById('tab-login').classList.toggle('active', m === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', m === 'signup');
+  document.getElementById('auth-btn').textContent = m === 'login' ? 'Sign In' : 'Create Account';
+  document.getElementById('auth-sub').textContent = m === 'login' ? 'Sign in to sync across all devices' : 'Create a free account to get started';
+  document.getElementById('auth-error').textContent = '';
+}
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pw = document.getElementById('auth-password').value;
+  const err = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-btn');
+  err.textContent = ''; if (!email || !pw) { err.textContent = 'Email and password required.'; return; }
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    let result;
+    if (authMode === 'login') result = await sb.auth.signInWithPassword({ email, password: pw });
+    else {
+      result = await sb.auth.signUp({ email, password: pw });
+      if (result.data?.user && !result.data?.session) { showToast('✓ Check email to confirm'); btn.disabled = false; btn.textContent = 'Create Account'; return; }
+    }
+    if (result.error) throw new Error(result.error.message);
+    if (!result.data?.session) throw new Error('No session. Check credentials or confirm email.');
+    currentUser = result.data.session.user;
+    await bootApp();
+  } catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = authMode === 'login' ? 'Sign In' : 'Create Account'; }
+}
+function confirmSignOut() {
+  confirm2('Sign Out', 'Sign out on this device?', 'Sign Out', 'btn-danger', async () => {
+    await sb.auth.signOut(); currentUser = null; showAuthScreen();
   });
-  const el = document.getElementById(id);
-  if (el) { el.style.display = 'flex'; el.classList.add('active'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCREEN ROUTING
+// ═══════════════════════════════════════════════════════════════
+function showAuthScreen() {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+  const el = document.getElementById('screen-auth');
+  el.style.display = 'flex'; el.classList.add('active');
   document.getElementById('app').style.display = 'none';
 }
-function showSetupScreen() { showScreen('screen-setup'); }
-function showAuthScreen()  { showScreen('screen-auth'); }
 async function bootApp() {
-  // Fully hide all screens so they can't block touch events on mobile
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = 'none';
-  });
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
   document.getElementById('app').style.display = 'flex';
   applyTheme(localStorage.getItem('tf_theme') || 'dark');
   await loadAll();
@@ -548,414 +668,582 @@ async function bootApp() {
 async function init() {
   applyTheme(localStorage.getItem('tf_theme') || 'dark');
   const { data } = await sb.auth.getSession();
-  if (data?.session) {
-    currentUser = data.session.user;
-    await bootApp();
-  } else {
-    showAuthScreen();
-  }
+  if (data?.session) { currentUser = data.session.user; await bootApp(); }
+  else showAuthScreen();
 }
 
-// ──────────────────────────────────────────────────────────
-// SETUP
-// ──────────────────────────────────────────────────────────
-async function saveSetup() {
-  const url = document.getElementById('setup-url').value.trim().replace(/\/$/,'');
-  const key = document.getElementById('setup-key').value.trim();
-  const err = document.getElementById('setup-error');
-  err.textContent = '';
-  if (!url || !key) { err.textContent = 'Both fields are required.'; return; }
-  if (!url.startsWith('https://')) { err.textContent = 'URL must start with https://'; return; }
-  try {
-    await fetch(url + '/rest/v1/', {headers:{'apikey':key}});
-    SUPA_URL = url; SUPA_KEY = key;
-    localStorage.setItem('tf_url', url); localStorage.setItem('tf_key', key);
-    showAuthScreen();
-  } catch(e) { err.textContent = 'Could not connect — check URL and key.'; }
-}
-function resetSetup() {
-  ['tf_url','tf_key','tf_at','tf_rt','tf_user'].forEach(k => localStorage.removeItem(k));
-  SUPA_URL=''; SUPA_KEY=''; ACCESS_TOKEN=''; currentUser=null;
-  showSetupScreen();
-}
-
-// ──────────────────────────────────────────────────────────
-// AUTH
-// ──────────────────────────────────────────────────────────
-let authMode = 'login';
-function switchAuthTab(mode) {
-  authMode = mode;
-  document.getElementById('tab-login').classList.toggle('active', mode==='login');
-  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
-  document.getElementById('auth-btn').textContent = mode==='login' ? 'Sign In' : 'Create Account';
-  document.getElementById('auth-sub').textContent = mode==='login' ? 'Sign in to sync across all devices' : 'Create a free account to get started';
-  document.getElementById('auth-error').textContent = '';
-}
-async function submitAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pw    = document.getElementById('auth-password').value;
-  const err   = document.getElementById('auth-error');
-  const btn   = document.getElementById('auth-btn');
-  err.textContent = '';
-  if (!email || !pw) { err.textContent = 'Email and password are required.'; return; }
-  btn.disabled = true; btn.textContent = '…';
-  try {
-    let result;
-    if (authMode === 'login') {
-      result = await sb.auth.signInWithPassword({ email, password: pw });
-    } else {
-      result = await sb.auth.signUp({ email, password: pw });
-      if (result.data?.user && !result.data?.session) {
-        showToast('✓ Check your email to confirm your account');
-        btn.disabled=false; btn.textContent='Create Account'; return;
-      }
-    }
-    if (result.error) throw new Error(result.error.message);
-    if (!result.data?.session) throw new Error('No session — check credentials or confirm your email.');
-    currentUser = result.data.session.user;
-    await bootApp();
-  } catch(e) {
-    err.textContent = e.message;
-    btn.disabled = false;
-    btn.textContent = authMode==='login' ? 'Sign In' : 'Create Account';
-  }
-}
-function confirmSignOut() {
-  setConfirmModal('Sign out?', 'Sign out of TaskFlow on this device?', 'Sign Out', 'btn-danger', async () => {
-    await sb.auth.signOut();
-    if (wsConn) wsConn.close();
-    currentUser = null;
-    showAuthScreen();
-  });
-}
-
-// ──────────────────────────────────────────────────────────
-// NAV
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
 function switchView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('view-' + v).classList.add('active');
   document.querySelector(`.nav-btn[data-view="${v}"]`).classList.add('active');
   currentView = v; renderCurrentView();
 }
 function renderCurrentView() {
-  if (currentView==='dashboard') renderDashboard();
-  else if (currentView==='clients') renderClients();
-  else if (currentView==='tasks') renderTasks();
-  else if (currentView==='reports') renderReports();
+  if (currentView === 'dashboard') renderDashboard();
+  else if (currentView === 'clients') renderClients();
+  else if (currentView === 'tasks') renderTasks();
+  else if (currentView === 'calendar') renderCalendar();
+  else if (currentView === 'team') renderTeam();
+  else if (currentView === 'reports') renderReports();
 }
 
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
 // HELPERS
-// ──────────────────────────────────────────────────────────
-const ini = n => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-const fmtD = d => d ? new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-const toDay = () => new Date().toISOString().slice(0,10);
-const isOvd = t => t.status!=='done' && t.due_date && t.due_date < toDay();
-const sdsp  = t => isOvd(t) ? 'overdue' : t.status;
-const SL = {'todo':'To-Do','in-progress':'In Progress','done':'Done','overdue':'Overdue'};
-const PL = {'low':'Low','medium':'Medium','high':'High'};
-const PO = {high:0,medium:1,low:2};
-const cmap = () => Object.fromEntries(clients.map(c=>[c.id,c]));
+// ═══════════════════════════════════════════════════════════════
+const ini = n => (n || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const fmtD = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const toDay = () => new Date().toISOString().slice(0, 10);
+const isOvd = t => t.status !== 'done' && t.due_date && t.due_date < toDay();
+const sdsp = t => isOvd(t) ? 'overdue' : t.status;
+const SL = { 'todo': 'To-Do', 'in-progress': 'In Progress', 'done': 'Done', 'overdue': 'Overdue' };
+const PL = { 'low': 'Low', 'medium': 'Medium', 'high': 'High' };
+const PO = { high: 0, medium: 1, low: 2 };
+const RL = { 'daily': '↻ Daily', 'weekly': '↻ Weekly', 'monthly': '↻ Monthly', 'yearly': '↻ Yearly' };
+const cmap = () => Object.fromEntries(clients.map(c => [c.id, c]));
+const PRIORITY_COLORS = ['#ef4444', '#f97316', '#22c55e'];
 
 function setSyncState(s) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
+  const dot = document.getElementById('sync-dot'), lbl = document.getElementById('sync-label');
   if (!dot) return;
-  dot.className = 'sync-dot' + (s==='syncing'?' syncing':s==='offline'?' offline':'');
-  lbl.textContent = s==='syncing'?'Syncing':s==='offline'?'Offline':'Live';
+  dot.className = 'sync-dot' + (s === 'syncing' ? ' syncing' : s === 'offline' ? ' offline' : '');
+  lbl.textContent = s === 'syncing' ? 'Syncing' : s === 'offline' ? 'Offline' : 'Live';
 }
-function showToast(msg, d=2400) {
+function showToast(msg, d = 2400) {
   const t = document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),d);
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), d);
 }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function closeIfBackdrop(e,id) { if(e.target.id===id) closeModal(id); }
-function setConfirmModal(title, msg, btnText, btnClass, fn) {
-  document.getElementById('delete-title').textContent = title;
-  document.getElementById('delete-msg').textContent = msg;
-  const btn = document.getElementById('confirm-delete-btn');
+function closeIfBackdrop(e, id) { if (e.target.id === id) closeModal(id); }
+function confirm2(title, msg, btnText, btnClass, fn) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  const btn = document.getElementById('confirm-action-btn');
   btn.textContent = btnText; btn.className = 'btn ' + btnClass;
-  btn.onclick = fn;
-  openModal('delete-overlay');
+  btn.onclick = fn; openModal('confirm-overlay');
 }
 
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
 // TAGS
-// ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
 function renderTagChips() {
-  const wrap = document.getElementById('tag-input-wrap');
-  const inp  = document.getElementById('tag-input');
-  wrap.querySelectorAll('.tag-chip').forEach(c=>c.remove());
+  const wrap = document.getElementById('tag-input-wrap'), inp = document.getElementById('tag-input');
+  wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
   currentTags.forEach(tag => {
-    const chip = document.createElement('span'); chip.className='tag-chip';
-    chip.innerHTML=`${tag}<button onclick="removeTag('${tag.replace(/'/g,"\\'")}');event.stopPropagation()" type="button">×</button>`;
+    const chip = document.createElement('span'); chip.className = 'tag-chip';
+    chip.innerHTML = `${tag}<button onclick="removeTag('${tag.replace(/'/g, "\\'")}');event.stopPropagation()" type="button">×</button>`;
     wrap.insertBefore(chip, inp);
   });
 }
-function removeTag(tag) { currentTags=currentTags.filter(t=>t!==tag); renderTagChips(); }
+function removeTag(tag) { currentTags = currentTags.filter(t => t !== tag); renderTagChips(); }
 function handleTagKey(e) {
-  const v = e.target.value.trim().replace(/,$/,'');
-  if ((e.key==='Enter'||e.key===',') && v) {
-    e.preventDefault();
-    if (!currentTags.includes(v)) { currentTags.push(v); renderTagChips(); }
-    e.target.value='';
-  } else if (e.key==='Backspace' && !e.target.value && currentTags.length) {
-    currentTags.pop(); renderTagChips();
-  }
+  const v = e.target.value.trim().replace(/,$/, '');
+  if ((e.key === 'Enter' || e.key === ',') && v) { e.preventDefault(); if (!currentTags.includes(v)) { currentTags.push(v); renderTagChips(); } e.target.value = ''; }
+  else if (e.key === 'Backspace' && !e.target.value && currentTags.length) { currentTags.pop(); renderTagChips(); }
 }
 function handleTagInput(e) {
-  if (e.target.value.endsWith(',')) {
-    const v=e.target.value.slice(0,-1).trim();
-    if (v&&!currentTags.includes(v)) { currentTags.push(v); renderTagChips(); }
-    e.target.value='';
-  }
+  if (e.target.value.endsWith(',')) { const v = e.target.value.slice(0, -1).trim(); if (v && !currentTags.includes(v)) { currentTags.push(v); renderTagChips(); } e.target.value = ''; }
 }
 
-// ──────────────────────────────────────────────────────────
-// CLIENTS CRUD
-// ──────────────────────────────────────────────────────────
-function openClientModal(id=null) {
-  document.getElementById('client-id').value=id||'';
-  document.getElementById('client-modal-title').textContent=id?'Edit Client':'New Client';
-  ['c-name','c-company','c-email','c-phone','c-notes'].forEach(f=>document.getElementById(f).value='');
+// ═══════════════════════════════════════════════════════════════
+// CLIENTS
+// ═══════════════════════════════════════════════════════════════
+function openClientModal(id = null) {
+  document.getElementById('client-id').value = id || '';
+  document.getElementById('client-modal-title').textContent = id ? 'Edit Client' : 'New Client';
+  ['c-name', 'c-company', 'c-email', 'c-phone', 'c-notes'].forEach(f => document.getElementById(f).value = '');
+  document.getElementById('c-rate').value = '0';
+  document.getElementById('c-currency').value = 'INR';
   if (id) {
-    const c=clients.find(x=>x.id===id);
-    if (c) { document.getElementById('c-name').value=c.name||''; document.getElementById('c-company').value=c.company||''; document.getElementById('c-email').value=c.email||''; document.getElementById('c-phone').value=c.phone||''; document.getElementById('c-notes').value=c.notes||''; }
+    const c = clients.find(x => x.id === id);
+    if (c) { document.getElementById('c-name').value = c.name || ''; document.getElementById('c-company').value = c.company || ''; document.getElementById('c-email').value = c.email || ''; document.getElementById('c-phone').value = c.phone || ''; document.getElementById('c-notes').value = c.notes || ''; document.getElementById('c-rate').value = c.rate || 0; document.getElementById('c-currency').value = c.currency || 'INR'; }
   }
   openModal('client-overlay');
 }
 async function saveClient() {
-  const name=document.getElementById('c-name').value.trim();
+  const name = document.getElementById('c-name').value.trim();
   if (!name) { showToast('⚠ Name is required'); return; }
-  const id=document.getElementById('client-id').value;
-  const btn=document.getElementById('client-save-btn'); btn.disabled=true;
-  const row={name,company:document.getElementById('c-company').value.trim()||null,email:document.getElementById('c-email').value.trim()||null,phone:document.getElementById('c-phone').value.trim()||null,notes:document.getElementById('c-notes').value.trim()||null,updated_at:new Date().toISOString()};
+  const id = document.getElementById('client-id').value;
+  const btn = document.getElementById('client-save-btn'); btn.disabled = true;
+  const row = { name, company: document.getElementById('c-company').value.trim() || null, email: document.getElementById('c-email').value.trim() || null, phone: document.getElementById('c-phone').value.trim() || null, notes: document.getElementById('c-notes').value.trim() || null, rate: parseFloat(document.getElementById('c-rate').value) || 0, currency: document.getElementById('c-currency').value, updated_at: new Date().toISOString() };
   try {
-    if (id) { await dbUpd('clients',id,row); showToast('✓ Client updated'); }
-    else { row.user_id=currentUser.id; await dbIns('clients',row); showToast('✓ Client added'); }
+    if (id) { await dbUpd('clients', id, row); showToast('✓ Client updated'); }
+    else { row.user_id = currentUser.id; await dbIns('clients', row); showToast('✓ Client added'); }
     closeModal('client-overlay'); await loadAll();
-  } catch(e) { showToast('⚠ '+e.message); }
-  btn.disabled=false;
+  } catch (e) { showToast('⚠ ' + e.message); }
+  btn.disabled = false;
 }
 function deleteClient(id) {
-  const c=clients.find(x=>x.id===id);
-  setConfirmModal('Delete Client',`Delete "${c?.name}"? Related tasks will lose the client link.`,'Delete','btn-danger', async ()=>{
-    try { await dbDel('clients',id); closeModal('delete-overlay'); showToast('Client deleted'); await loadAll(); }
-    catch(e) { showToast('⚠ '+e.message); }
+  const c = clients.find(x => x.id === id);
+  confirm2('Delete Client', `Delete "${c?.name}"?`, 'Delete', 'btn-danger', async () => {
+    await dbDel('clients', id).catch(e => showToast('⚠ ' + e.message));
+    closeModal('confirm-overlay'); showToast('Client deleted'); await loadAll();
   });
 }
+function openInvoiceModal(clientId) {
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+  const clientTasks = tasks.filter(t => t.client_id === clientId && t.status === 'done');
+  const rate = c.rate || 0;
+  const currency = c.currency || 'INR';
+  const invoiceNum = 'INV-' + Date.now().toString().slice(-6);
+  const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  let total = 0;
+  const rows = clientTasks.map(t => {
+    const hrs = parseFloat(t.hours) || 0;
+    const amt = hrs * rate;
+    total += amt;
+    return `<tr><td>${t.title}</td><td style="text-align:center">${hrs}</td><td style="text-align:right">${currency} ${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>`;
+  }).join('');
+  document.getElementById('invoice-content').innerHTML = `
+    <div class="invoice-header">
+      <div><div class="invoice-title">INVOICE</div><div style="font-size:12px;color:var(--muted);margin-top:4px">${invoiceNum}</div></div>
+      <div style="text-align:right;font-size:12px;color:var(--muted)"><div>${today}</div></div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Bill To</div>
+      <div style="font-weight:500">${c.name}</div>
+      ${c.company ? `<div style="font-size:12px;color:var(--muted)">${c.company}</div>` : ''}
+      ${c.email ? `<div style="font-size:12px;color:var(--muted)">${c.email}</div>` : ''}
+    </div>
+    ${clientTasks.length ? `
+    <table class="invoice-table">
+      <thead><tr><th>Task</th><th style="text-align:center">Hours</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="invoice-total">Total: ${currency} ${total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+    ` : '<p style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0">No completed tasks for this client yet.</p>'}
+    <div style="margin-top:18px;font-size:11px;color:var(--muted);text-align:center">Rate: ${currency} ${rate}/hr · Generated by TaskFlow</div>`;
+  openModal('invoice-overlay');
+}
+function printInvoice() { window.print(); }
+
 function renderClients() {
-  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
-  const list=q?clients.filter(c=>c.name.toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q)):clients;
-  const el=document.getElementById('clients-list'); if(!el) return;
-  if (!list.length) { el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>${q?'No clients match.':'No clients yet.<br/>Tap + Add to create one.'}</p></div>`; return; }
-  el.innerHTML=list.map(c=>`<div class="card"><div class="avatar">${ini(c.name)}</div><div class="card-body"><div class="card-title">${c.name}</div><div class="card-meta">${c.company?`<span>🏢 ${c.company}</span>`:''} ${c.email?`<span>✉ ${c.email}</span>`:''} ${c.phone?`<span>📞 ${c.phone}</span>`:''}</div>${c.notes?`<div style="font-size:11px;color:var(--muted);margin-top:5px;font-style:italic;border-left:2px solid var(--border);padding-left:8px;line-height:1.4">${c.notes}</div>`:''}</div><div class="card-actions"><button class="icon-btn edit" onclick="openClientModal('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn del" onclick="deleteClient('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></div>`).join('');
+  const q = (document.getElementById('client-search')?.value || '').toLowerCase();
+  const list = q ? clients.filter(c => c.name.toLowerCase().includes(q) || (c.company || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q)) : clients;
+  const el = document.getElementById('clients-list'); if (!el) return;
+  if (!list.length) { el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>${q ? 'No match.' : 'No clients yet.'}</p></div>`; return; }
+  el.innerHTML = list.map(c => `<div class="card">
+    <div class="avatar">${ini(c.name)}</div>
+    <div class="card-body">
+      <div class="card-title">${c.name}</div>
+      <div class="card-meta">${c.company ? `<span>🏢 ${c.company}</span>` : ''}${c.email ? `<span>✉ ${c.email}</span>` : ''}${c.rate ? `<span>💰 ${c.currency} ${c.rate}/hr</span>` : ''}</div>
+      ${c.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;border-left:2px solid var(--border);padding-left:8px">${c.notes}</div>` : ''}
+    </div>
+    <div class="card-actions" style="flex-direction:column">
+      <button class="icon-btn invoice" onclick="openInvoiceModal('${c.id}')" title="Invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
+      <button class="icon-btn edit" onclick="openClientModal('${c.id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="icon-btn del" onclick="deleteClient('${c.id}')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+    </div>
+  </div>`).join('');
 }
 
-// ──────────────────────────────────────────────────────────
-// TASKS CRUD
-// ──────────────────────────────────────────────────────────
-function openTaskModal(id=null) {
-  document.getElementById('task-id').value=id||'';
-  document.getElementById('task-modal-title').textContent=id?'Edit Task':'New Task';
-  document.getElementById('t-title').value=''; document.getElementById('t-desc').value='';
-  document.getElementById('t-priority').value='medium'; document.getElementById('t-status').value='todo';
-  document.getElementById('t-due').value=''; document.getElementById('t-sched').value=toDay();
-  currentTags=[];
-  const sel=document.getElementById('t-client');
-  sel.innerHTML='<option value="">— No client —</option>'+clients.map(c=>`<option value="${c.id}">${c.name}${c.company?` (${c.company})`:''}</option>`).join('');
+// ═══════════════════════════════════════════════════════════════
+// TASKS
+// ═══════════════════════════════════════════════════════════════
+function populateAssigneeSelect() {
+  const sel = document.getElementById('t-assignee');
+  const myTeam = teams.find(t => t.owner_id === currentUser.id);
+  const members = myTeam ? teamMembers.filter(m => m.team_id === myTeam.id && m.status === 'active') : [];
+  sel.innerHTML = '<option value="">— Unassigned —</option>' +
+    `<option value="${currentUser.id}|Me">Me (${currentUser.email})</option>` +
+    members.map(m => `<option value="${m.user_id || m.email}|${m.name || m.email}">${m.name || m.email}</option>`).join('');
+}
+
+function openTaskModal(id = null) {
+  document.getElementById('task-id').value = id || '';
+  document.getElementById('task-modal-title').textContent = id ? 'Edit Task' : 'New Task';
+  document.getElementById('t-title').value = ''; document.getElementById('t-desc').value = '';
+  document.getElementById('t-priority').value = 'medium'; document.getElementById('t-status').value = 'todo';
+  document.getElementById('t-due').value = ''; document.getElementById('t-sched').value = toDay();
+  document.getElementById('t-recurrence').value = 'none'; document.getElementById('t-hours').value = '0';
+  currentTags = [];
+  const sel = document.getElementById('t-client');
+  sel.innerHTML = '<option value="">— No client —</option>' + clients.map(c => `<option value="${c.id}">${c.name}${c.company ? ` (${c.company})` : ''}</option>`).join('');
+  populateAssigneeSelect();
   if (id) {
-    const t=tasks.find(x=>x.id===id);
-    if (t) { document.getElementById('t-title').value=t.title||''; document.getElementById('t-desc').value=t.description||''; document.getElementById('t-client').value=t.client_id||''; document.getElementById('t-priority').value=t.priority||'medium'; document.getElementById('t-status').value=t.status||'todo'; document.getElementById('t-due').value=t.due_date||''; document.getElementById('t-sched').value=t.scheduled_date||''; currentTags=Array.isArray(t.tags)?[...t.tags]:[]; }
+    const t = tasks.find(x => x.id === id);
+    if (t) {
+      document.getElementById('t-title').value = t.title || ''; document.getElementById('t-desc').value = t.description || '';
+      document.getElementById('t-client').value = t.client_id || ''; document.getElementById('t-priority').value = t.priority || 'medium';
+      document.getElementById('t-status').value = t.status || 'todo'; document.getElementById('t-due').value = t.due_date || '';
+      document.getElementById('t-sched').value = t.scheduled_date || ''; document.getElementById('t-recurrence').value = t.recurrence || 'none';
+      document.getElementById('t-hours').value = t.hours || 0;
+      if (t.assignee_id) document.getElementById('t-assignee').value = `${t.assignee_id}|${t.assignee_name || ''}`;
+      currentTags = Array.isArray(t.tags) ? [...t.tags] : [];
+    }
   }
-  renderTagChips();
-  openModal('task-overlay');
+  renderTagChips(); openModal('task-overlay');
 }
+
 async function saveTask() {
-  const title=document.getElementById('t-title').value.trim();
+  const title = document.getElementById('t-title').value.trim();
   if (!title) { showToast('⚠ Title is required'); return; }
-  const id=document.getElementById('task-id').value;
-  const btn=document.getElementById('task-save-btn'); btn.disabled=true;
-  const clientVal=document.getElementById('t-client').value;
-  const statusVal=document.getElementById('t-status').value;
-  const prevTask=id?tasks.find(x=>x.id===id):null;
-  const nowDone=statusVal==='done'&&(!prevTask||prevTask.status!=='done');
-  const row={title,description:document.getElementById('t-desc').value.trim()||null,client_id:clientVal||null,priority:document.getElementById('t-priority').value,status:statusVal,tags:currentTags,due_date:document.getElementById('t-due').value||null,scheduled_date:document.getElementById('t-sched').value||null,updated_at:new Date().toISOString(),...(nowDone?{completed_at:new Date().toISOString()}:{})};
+  const id = document.getElementById('task-id').value;
+  const btn = document.getElementById('task-save-btn'); btn.disabled = true;
+  const clientVal = document.getElementById('t-client').value;
+  const statusVal = document.getElementById('t-status').value;
+  const assigneeRaw = document.getElementById('t-assignee').value;
+  const [assigneeId, assigneeName] = assigneeRaw ? assigneeRaw.split('|') : ['', ''];
+  const prevTask = id ? tasks.find(x => x.id === id) : null;
+  const nowDone = statusVal === 'done' && (!prevTask || prevTask.status !== 'done');
+  const recurrence = document.getElementById('t-recurrence').value;
+  const row = {
+    title, description: document.getElementById('t-desc').value.trim() || null,
+    client_id: clientVal || null, priority: document.getElementById('t-priority').value,
+    status: statusVal, tags: currentTags, assignee_id: assigneeId || null, assignee_name: assigneeName || null,
+    recurrence: recurrence || 'none', hours: parseFloat(document.getElementById('t-hours').value) || 0,
+    due_date: document.getElementById('t-due').value || null,
+    scheduled_date: document.getElementById('t-sched').value || null,
+    updated_at: new Date().toISOString(),
+    ...(nowDone ? { completed_at: new Date().toISOString() } : {})
+  };
   try {
-    if (id) { await dbUpd('tasks',id,row); showToast('✓ Task updated'); }
-    else { row.user_id=currentUser.id; await dbIns('tasks',row); showToast('✓ Task added'); }
+    if (id) { await dbUpd('tasks', id, row); showToast('✓ Task updated'); }
+    else { row.user_id = currentUser.id; await dbIns('tasks', row); showToast('✓ Task added'); }
+    // Auto-create next recurring task when done
+    if (nowDone && recurrence && recurrence !== 'none') {
+      await createNextRecurring({ ...row, id: id || 'new' });
+    }
     closeModal('task-overlay'); await loadAll();
-  } catch(e) { showToast('⚠ '+e.message); }
-  btn.disabled=false;
+  } catch (e) { showToast('⚠ ' + e.message); }
+  btn.disabled = false;
 }
+
+async function createNextRecurring(t) {
+  const base = t.due_date ? new Date(t.due_date) : new Date();
+  const next = new Date(base);
+  if (t.recurrence === 'daily') next.setDate(next.getDate() + 1);
+  else if (t.recurrence === 'weekly') next.setDate(next.getDate() + 7);
+  else if (t.recurrence === 'monthly') next.setMonth(next.getMonth() + 1);
+  else if (t.recurrence === 'yearly') next.setFullYear(next.getFullYear() + 1);
+  const nextDate = next.toISOString().slice(0, 10);
+  await dbIns('tasks', {
+    user_id: currentUser.id, title: t.title, description: t.description,
+    client_id: t.client_id, priority: t.priority, status: 'todo',
+    tags: t.tags || [], assignee_id: t.assignee_id, assignee_name: t.assignee_name,
+    recurrence: t.recurrence, hours: t.hours || 0,
+    due_date: nextDate, scheduled_date: nextDate
+  });
+  showToast('↻ Next recurring task created', 3000);
+}
+
 function deleteTask(id) {
-  const t=tasks.find(x=>x.id===id);
-  setConfirmModal('Delete Task',`Delete "${t?.title}"?`,'Delete','btn-danger', async ()=>{
-    try { await dbDel('tasks',id); closeModal('delete-overlay'); showToast('Task deleted'); await loadAll(); }
-    catch(e) { showToast('⚠ '+e.message); }
+  const t = tasks.find(x => x.id === id);
+  confirm2('Delete Task', `Delete "${t?.title}"?`, 'Delete', 'btn-danger', async () => {
+    await dbDel('tasks', id).catch(e => showToast('⚠ ' + e.message));
+    closeModal('confirm-overlay'); showToast('Task deleted'); await loadAll();
   });
 }
 function openReschedule(id) {
-  const t=tasks.find(x=>x.id===id); if(!t) return;
-  document.getElementById('reschedule-id').value=id;
-  document.getElementById('reschedule-title').textContent=`"${t.title}"`;
-  document.getElementById('r-sched').value=t.scheduled_date||toDay();
-  document.getElementById('r-due').value=t.due_date||'';
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  document.getElementById('reschedule-id').value = id;
+  document.getElementById('reschedule-title').textContent = `"${t.title}"`;
+  document.getElementById('r-sched').value = t.scheduled_date || toDay();
+  document.getElementById('r-due').value = t.due_date || '';
   openModal('reschedule-overlay');
 }
 async function applyReschedule() {
-  const id=document.getElementById('reschedule-id').value;
-  const btn=document.getElementById('reschedule-save-btn'); btn.disabled=true;
+  const id = document.getElementById('reschedule-id').value;
+  const btn = document.getElementById('reschedule-save-btn'); btn.disabled = true;
   try {
-    await dbUpd('tasks',id,{scheduled_date:document.getElementById('r-sched').value||null,due_date:document.getElementById('r-due').value||null,updated_at:new Date().toISOString()});
+    await dbUpd('tasks', id, { scheduled_date: document.getElementById('r-sched').value || null, due_date: document.getElementById('r-due').value || null, updated_at: new Date().toISOString() });
     closeModal('reschedule-overlay'); showToast('✓ Rescheduled'); await loadAll();
-  } catch(e) { showToast('⚠ '+e.message); }
-  btn.disabled=false;
+  } catch (e) { showToast('⚠ ' + e.message); }
+  btn.disabled = false;
 }
-function setFilter(el,f) {
-  taskFilter=f; activeTagFilter='';
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+
+function setFilter(el, f) {
+  taskFilter = f; activeTagFilter = '';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active'); renderTasks();
 }
-function setTagFilter(tag) { activeTagFilter=activeTagFilter===tag?'':tag; renderTasks(); }
+function setTagFilter(tag) { activeTagFilter = activeTagFilter === tag ? '' : tag; renderTasks(); }
 
 function renderTasks() {
-  const q=(document.getElementById('task-search')?.value||'').toLowerCase();
-  const cm=cmap();
-  const allTags=[...new Set(tasks.flatMap(t=>t.tags||[]))].sort();
-  const tr=document.getElementById('tag-filter-row');
-  if (tr) tr.innerHTML=allTags.map(tag=>`<button class="filter-chip ${activeTagFilter===tag?'active':''}" onclick="setTagFilter('${tag}')">${tag}</button>`).join('');
-  let filtered=tasks;
-  if (taskFilter==='overdue') filtered=tasks.filter(t=>isOvd(t));
-  else if (taskFilter!=='all') filtered=tasks.filter(t=>t.status===taskFilter&&!isOvd(t));
-  if (activeTagFilter) filtered=filtered.filter(t=>(t.tags||[]).includes(activeTagFilter));
-  if (q) filtered=filtered.filter(t=>{const cl=cm[t.client_id];return t.title.toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q)||(t.tags||[]).some(g=>g.toLowerCase().includes(q))||(cl?.name||'').toLowerCase().includes(q);});
-  filtered.sort((a,b)=>{const ao=isOvd(a),bo=isOvd(b);if(ao&&!bo)return -1;if(!ao&&bo)return 1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date)return -1;if(b.due_date)return 1;return (PO[a.priority]||1)-(PO[b.priority]||1);});
-  const el=document.getElementById('tasks-list'); if(!el) return;
-  if (!filtered.length) { el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><p>No tasks here.</p></div>`; return; }
-  el.innerHTML=filtered.map(t=>{const sd=sdsp(t),cl=cm[t.client_id];const tagHtml=(t.tags||[]).map(g=>`<span class="tag">${g}</span>`).join('');return `<div class="card ${sd==='overdue'?'overdue':''}"><div class="card-body"><div class="card-title">${t.title}</div><div class="card-meta" style="margin-bottom:4px"><span class="badge badge-${sd}">${SL[sd]||sd}</span><span class="badge badge-${t.priority}">${PL[t.priority]||t.priority}</span>${tagHtml}</div><div class="card-meta">${cl?`<span>👤 ${cl.name}</span>`:''} ${t.due_date?`<span>📅 ${fmtD(t.due_date)}</span>`:''} ${t.scheduled_date?`<span>🗓 ${fmtD(t.scheduled_date)}</span>`:''}</div></div><div class="card-actions" style="flex-direction:column"><button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn reschedule" onclick="openReschedule('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><button class="icon-btn del" onclick="deleteTask('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></div>`}).join('');
+  const q = (document.getElementById('task-search')?.value || '').toLowerCase();
+  const cm = cmap();
+  const allTags = [...new Set(tasks.flatMap(t => t.tags || []))].sort();
+  const tr = document.getElementById('tag-filter-row');
+  if (tr) tr.innerHTML = allTags.map(tag => `<button class="filter-chip ${activeTagFilter === tag ? 'active' : ''}" onclick="setTagFilter('${tag}')">${tag}</button>`).join('');
+  let filtered = tasks;
+  if (taskFilter === 'overdue') filtered = tasks.filter(t => isOvd(t));
+  else if (taskFilter === 'mine') filtered = tasks.filter(t => t.assignee_id === currentUser.id || t.user_id === currentUser.id);
+  else if (taskFilter !== 'all') filtered = tasks.filter(t => t.status === taskFilter && !isOvd(t));
+  if (activeTagFilter) filtered = filtered.filter(t => (t.tags || []).includes(activeTagFilter));
+  if (q) filtered = filtered.filter(t => { const cl = cm[t.client_id]; return t.title.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q) || (t.tags || []).some(g => g.toLowerCase().includes(q)) || (cl?.name || '').toLowerCase().includes(q) || (t.assignee_name || '').toLowerCase().includes(q); });
+  filtered.sort((a, b) => { const ao = isOvd(a), bo = isOvd(b); if (ao && !bo) return -1; if (!ao && bo) return 1; if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date); if (a.due_date) return -1; if (b.due_date) return 1; return (PO[a.priority] || 1) - (PO[b.priority] || 1); });
+  const el = document.getElementById('tasks-list'); if (!el) return;
+  if (!filtered.length) { el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><p>No tasks here.</p></div>`; return; }
+  el.innerHTML = filtered.map(t => {
+    const sd = sdsp(t), cl = cm[t.client_id];
+    const tagHtml = (t.tags || []).map(g => `<span class="tag">${g}</span>`).join('');
+    const assigneeHtml = t.assignee_name ? `<span>👤 ${t.assignee_name === 'Me' ? 'Me' : t.assignee_name}</span>` : '';
+    const recHtml = t.recurrence && t.recurrence !== 'none' ? `<span class="badge badge-recurring">${RL[t.recurrence]}</span>` : '';
+    return `<div class="card ${sd === 'overdue' ? 'overdue' : ''}">
+      <div class="card-body">
+        <div class="card-title">${t.title}</div>
+        <div class="card-meta" style="margin-bottom:4px"><span class="badge badge-${sd}">${SL[sd] || sd}</span><span class="badge badge-${t.priority}">${PL[t.priority]}</span>${recHtml}${tagHtml}</div>
+        <div class="card-meta">${cl ? `<span>🏢 ${cl.name}</span>` : ''}${assigneeHtml}${t.due_date ? `<span>📅 ${fmtD(t.due_date)}</span>` : ''}${t.hours ? `<span>⏱ ${t.hours}h</span>` : ''}</div>
+      </div>
+      <div class="card-actions" style="flex-direction:column">
+        <button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="icon-btn reschedule" onclick="openReschedule('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+        <button class="icon-btn del" onclick="deleteTask('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// ──────────────────────────────────────────────────────────
-// DASHBOARD
-// ──────────────────────────────────────────────────────────
-function renderDashboard() {
-  document.getElementById('s-clients').textContent=clients.length;
-  document.getElementById('s-tasks').textContent=tasks.length;
-  document.getElementById('s-done').textContent=tasks.filter(t=>t.status==='done').length;
-  document.getElementById('s-overdue').textContent=tasks.filter(t=>isOvd(t)).length;
-  const t7=new Date(); t7.setDate(t7.getDate()+7);
-  const td=toDay(), t7s=t7.toISOString().slice(0,10);
-  const soon=tasks.filter(t=>t.status!=='done'&&t.due_date&&t.due_date>=td&&t.due_date<=t7s).sort((a,b)=>a.due_date.localeCompare(b.due_date)).slice(0,5);
-  const cm=cmap(), el=document.getElementById('recent-list');
-  if (!soon.length) { el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><p>No tasks due in next 7 days.</p></div>`; return; }
-  el.innerHTML=soon.map(t=>{const cl=cm[t.client_id],sd=sdsp(t);return `<div class="card ${sd==='overdue'?'overdue':''}"><div class="card-body"><div class="card-title">${t.title}</div><div class="card-meta"><span class="badge badge-${t.priority}">${PL[t.priority]}</span>${cl?`<span>👤 ${cl.name}</span>`:''}<span>📅 ${fmtD(t.due_date)}</span></div></div><div class="card-actions"><button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn reschedule" onclick="openReschedule('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div></div>`}).join('');
-}
+// ═══════════════════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════════════════
+function changeMonth(d) { calendarDate.setMonth(calendarDate.getMonth() + d); renderCalendar(); }
 
-// ──────────────────────────────────────────────────────────
-// REPORTS
-// ──────────────────────────────────────────────────────────
-function calcStreak() {
-  const dates=[...new Set(tasks.filter(t=>t.completed_at).map(t=>t.completed_at.slice(0,10)))].sort().reverse();
-  if (!dates.length) return {cur:0,best:0};
-  let cur=0,d=new Date();
-  for (let i=0;i<365;i++) {
-    const ds=d.toISOString().slice(0,10);
-    if (dates.includes(ds)) cur++; else if (i>0) break;
-    d.setDate(d.getDate()-1);
+function renderCalendar() {
+  const y = calendarDate.getFullYear(), m = calendarDate.getMonth();
+  document.getElementById('cal-month-label').textContent = new Date(y, m, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const todayStr = toDay();
+  const tasksByDate = {};
+  tasks.forEach(t => { if (t.due_date) { if (!tasksByDate[t.due_date]) tasksByDate[t.due_date] = []; tasksByDate[t.due_date].push(t); } });
+  const dows = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day other-month"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dayTasks = tasksByDate[dateStr] || [];
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedCalDay;
+    html += `<div class="cal-day ${isToday ? 'today' : ''}" style="${isSelected ? 'border-color:var(--info)' : ''}" onclick="selectCalDay('${dateStr}')">
+      <div class="cal-day-num">${d}</div>
+      ${dayTasks.slice(0, 3).map(t => `<div class="cal-dot" style="background:${t.priority === 'high' ? '#ef4444' : t.priority === 'medium' ? '#f97316' : '#22c55e'}">${t.title}</div>`).join('')}
+      ${dayTasks.length > 3 ? `<div style="font-size:9px;color:var(--muted)">+${dayTasks.length - 3}</div>` : ''}
+    </div>`;
   }
-  let best=1,run=1;
-  for (let i=1;i<dates.length;i++) {
-    const diff=(new Date(dates[i-1])-new Date(dates[i]))/86400000;
-    if (diff===1) {run++;best=Math.max(best,run);} else run=1;
-  }
-  return {cur,best};
-}
-function bar(label,val,tot,color) {
-  const pct=tot?Math.round(val/tot*100):0;
-  return `<div class="report-bar-wrap"><div class="report-bar-label"><span>${label}</span><span>${val}/${tot} (${pct}%)</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
-}
-function renderReports() {
-  const {cur,best}=calcStreak();
-  document.getElementById('streak-num').textContent=cur;
-  document.getElementById('streak-best').textContent=best;
-  const now=new Date(),ws=new Date(now);ws.setDate(now.getDate()-now.getDay());
-  const wss=ws.toISOString().slice(0,10);
-  const wt=tasks.filter(t=>t.created_at>=wss).length;
-  const wd=tasks.filter(t=>t.completed_at&&t.completed_at>=wss+'T00:00:00').length;
-  document.getElementById('week-stats').innerHTML=`<div class="stat-card blue"><div class="stat-value">${wt}</div><div class="stat-label">Created</div></div><div class="stat-card green"><div class="stat-value">${wd}</div><div class="stat-label">Completed</div></div>`;
-  document.getElementById('priority-bars').innerHTML=['high','medium','low'].map(p=>{
-    const tot=tasks.filter(t=>t.priority===p).length,done=tasks.filter(t=>t.priority===p&&t.status==='done').length;
-    return bar(PL[p],done,tot,p==='high'?'var(--danger)':p==='medium'?'var(--warn)':'var(--success)');
-  }).join('')||'<p style="font-size:13px;color:var(--muted)">No tasks yet.</p>';
-  const cm=cmap();
-  const cBars=clients.map(c=>{const tot=tasks.filter(t=>t.client_id===c.id).length;if(!tot)return '';const done=tasks.filter(t=>t.client_id===c.id&&t.status==='done').length;return bar(c.name,done,tot,'var(--info)');}).join('');
-  document.getElementById('client-task-bars').innerHTML=cBars||'<p style="font-size:13px;color:var(--muted)">No client tasks yet.</p>';
+  document.getElementById('cal-grid').innerHTML = html;
+  if (selectedCalDay) renderCalDayTasks(selectedCalDay);
 }
 
-// ──────────────────────────────────────────────────────────
-// EXPORT / IMPORT
-// ──────────────────────────────────────────────────────────
-function dl(content,name,type) { const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href); }
-function exportCSV() {
-  const cm=cmap();
-  const rows=[['ID','Title','Description','Status','Priority','Tags','Client','Due Date','Scheduled','Created']];
-  tasks.forEach(t=>rows.push([t.id,t.title,t.description||'',t.status,t.priority,(t.tags||[]).join(';'),cm[t.client_id]?.name||'',t.due_date||'',t.scheduled_date||'',t.created_at||'']));
-  dl(rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),`taskflow-${toDay()}.csv`,'text/csv');
-  showToast('✓ CSV exported');
+function selectCalDay(dateStr) {
+  selectedCalDay = selectedCalDay === dateStr ? null : dateStr;
+  renderCalendar();
 }
-function exportJSON() {
-  dl(JSON.stringify({clients,tasks,exported_at:new Date().toISOString()},null,2),`taskflow-backup-${toDay()}.json`,'application/json');
-  showToast('✓ JSON exported');
+
+function renderCalDayTasks(dateStr) {
+  const dayTasks = tasks.filter(t => t.due_date === dateStr);
+  const cm = cmap();
+  const el = document.getElementById('cal-day-tasks');
+  if (!dayTasks.length) { el.innerHTML = `<p style="font-size:13px;color:var(--muted);text-align:center;padding:10px 0">No tasks on ${fmtD(dateStr)}</p>`; return; }
+  el.innerHTML = `<div class="section-label" style="margin-bottom:8px">Tasks on ${fmtD(dateStr)}</div>` +
+    dayTasks.map(t => {
+      const cl = cm[t.client_id], sd = sdsp(t);
+      return `<div class="card ${sd === 'overdue' ? 'overdue' : ''}">
+        <div class="card-body">
+          <div class="card-title">${t.title}</div>
+          <div class="card-meta"><span class="badge badge-${sd}">${SL[sd] || sd}</span><span class="badge badge-${t.priority}">${PL[t.priority]}</span>${cl ? `<span>🏢 ${cl.name}</span>` : ''}${t.assignee_name ? `<span>👤 ${t.assignee_name}</span>` : ''}</div>
+        </div>
+        <div class="card-actions"><button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div>
+      </div>`;
+    }).join('');
 }
-async function importJSON(input) {
-  const file=input.files[0]; if(!file) return;
+
+// ═══════════════════════════════════════════════════════════════
+// TEAM
+// ═══════════════════════════════════════════════════════════════
+async function createTeam(name) {
   try {
-    const data=JSON.parse(await file.text());
-    const ic=data.clients||[],it=data.tasks||[];
-    if (!ic.length&&!it.length) { showToast('⚠ Nothing found'); return; }
-    setConfirmModal('Import Data',`Import ${ic.length} clients and ${it.length} tasks?`,'Import','btn-primary', async ()=>{
-      setSyncState('syncing');
-      for (const c of ic) { const {id,...r}=c; r.user_id=currentUser.id; await dbIns('clients',r).catch(()=>{}); }
-      for (const t of it) { const {id,...r}=t; r.user_id=currentUser.id; await dbIns('tasks',r).catch(()=>{}); }
-      closeModal('delete-overlay'); showToast('✓ Import complete'); await loadAll();
-    });
-  } catch(e) { showToast('⚠ Invalid JSON file'); }
-  input.value='';
+    const res = await dbIns('teams', { name, owner_id: currentUser.id });
+    const teamId = res[0].id;
+    await dbIns('team_members', { team_id: teamId, user_id: currentUser.id, email: currentUser.email, name: currentUser.user_metadata?.name || 'Me', role: 'owner', status: 'active' });
+    showToast('✓ Team created'); await loadAll();
+  } catch (e) { showToast('⚠ ' + e.message); }
 }
-function confirmClearData() {
-  setConfirmModal('Delete All Data','Delete ALL clients and tasks? This cannot be undone.','Delete Everything','btn-danger', async ()=>{
-    setSyncState('syncing');
-    for (const t of [...tasks]) await dbDel('tasks',t.id).catch(()=>{});
-    for (const c of [...clients]) await dbDel('clients',c.id).catch(()=>{});
-    closeModal('delete-overlay'); showToast('All data deleted'); await loadAll();
+
+async function inviteMember() {
+  const email = document.getElementById('invite-email').value.trim();
+  const name = document.getElementById('invite-name').value.trim();
+  const err = document.getElementById('invite-error');
+  err.textContent = '';
+  if (!email) { err.textContent = 'Email is required.'; return; }
+  const myTeam = teams.find(t => t.owner_id === currentUser.id);
+  if (!myTeam) { err.textContent = 'Create a team first.'; return; }
+  const btn = document.getElementById('invite-save-btn'); btn.disabled = true;
+  try {
+    await dbIns('team_members', { team_id: myTeam.id, email, name: name || null, role: 'member', status: 'pending' });
+    closeModal('invite-overlay'); showToast('✓ Invite sent — share the app URL with them'); await loadAll();
+  } catch (e) { err.textContent = e.message; }
+  btn.disabled = false;
+}
+
+async function removeMember(id) {
+  confirm2('Remove Member', 'Remove this member from the team?', 'Remove', 'btn-danger', async () => {
+    await dbDel('team_members', id).catch(e => showToast('⚠ ' + e.message));
+    closeModal('confirm-overlay'); await loadAll();
   });
 }
 
-// ──────────────────────────────────────────────────────────
-// THEME
-// ──────────────────────────────────────────────────────────
-function applyTheme(t) {
-  document.documentElement.setAttribute('data-theme',t);
-  const m=document.getElementById('theme-meta'); if(m) m.content=t==='dark'?'#0d0d0f':'#f3f3f6';
-  localStorage.setItem('tf_theme',t);
-  const icon=document.getElementById('theme-icon');
-  if(icon) icon.innerHTML=t==='dark'?'<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="none" stroke="currentColor"/>':'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-}
-function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
+function renderTeam() {
+  const el = document.getElementById('team-content'); if (!el) return;
+  const myTeam = teams.find(t => t.owner_id === currentUser.id);
+  const memberTeam = teamMembers.find(m => m.user_id === currentUser.id && m.status === 'active' && !myTeam);
 
-// ──────────────────────────────────────────────────────────
-// SQL GUIDE
-// ──────────────────────────────────────────────────────────
-function showSQLGuide() { document.getElementById('sql-code').value=SETUP_SQL; openModal('sql-overlay'); }
-async function copySQLToClipboard() { try { await navigator.clipboard.writeText(SETUP_SQL); showToast('✓ SQL copied'); } catch(e) { showToast('⚠ Copy failed — select manually'); } }
+  if (!myTeam && !memberTeam) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:24px 0">
+        <div style="font-size:2rem;margin-bottom:12px">👥</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:6px">No Team Yet</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Create a team to collaborate, share tasks, and assign work to teammates.</div>
+        <div class="form-group"><label>Team Name</label><input id="new-team-name" placeholder="My Agency, Dev Team…" style="text-align:center"/></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:4px" onclick="createTeam(document.getElementById('new-team-name').value.trim())">Create Team</button>
+      </div>`;
+    return;
+  }
+
+  const team = myTeam || { id: memberTeam.team_id, name: 'Your Team' };
+  const members = teamMembers.filter(m => m.team_id === team.id);
+  const isOwner = !!myTeam;
+
+  el.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700">${team.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${members.filter(m => m.status === 'active').length} active · ${members.filter(m => m.status === 'pending').length} pending</div>
+        </div>
+        ${isOwner ? `<button class="btn btn-primary btn-sm" onclick="openModal('invite-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:12px;height:12px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite</button>` : ''}
+      </div>
+    </div>
+    <div class="section-label">Members</div>
+    ${members.map(m => `
+      <div class="member-row">
+        <div class="member-avatar">${ini(m.name || m.email)}</div>
+        <div class="member-info">
+          <div class="member-name">${m.name || m.email}</div>
+          <div class="member-email">${m.name ? m.email : ''}</div>
+        </div>
+        <span class="role-badge role-${m.status === 'pending' ? 'pending' : m.role === 'owner' ? 'owner' : 'member'}">${m.status === 'pending' ? 'Pending' : m.role === 'owner' ? 'Owner' : 'Member'}</span>
+        ${isOwner && m.role !== 'owner' ? `<button class="icon-btn del" onclick="removeMember('${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : ''}
+      </div>`).join('')}
+    ${members.some(m => m.status === 'pending') ? `
+    <div style="background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;font-size:12px;color:var(--muted)">
+      💡 Share the app URL with pending members. They sign up and their status updates to active.
+    </div>` : ''}
+    ${isOwner ? `<div class="divider"></div><button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="showSQLGuide()">View SQL setup</button>` : ''}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function renderDashboard() {
+  document.getElementById('s-clients').textContent = clients.length;
+  document.getElementById('s-tasks').textContent = tasks.length;
+  document.getElementById('s-done').textContent = tasks.filter(t => t.status === 'done').length;
+  document.getElementById('s-overdue').textContent = tasks.filter(t => isOvd(t)).length;
+  const t7 = new Date(); t7.setDate(t7.getDate() + 7);
+  const td = toDay(), t7s = t7.toISOString().slice(0, 10);
+  const soon = tasks.filter(t => t.status !== 'done' && t.due_date && t.due_date >= td && t.due_date <= t7s).sort((a, b) => a.due_date.localeCompare(b.due_date)).slice(0, 5);
+  const cm = cmap(), el = document.getElementById('recent-list');
+  if (!soon.length) { el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><p>No tasks due in next 7 days.</p></div>`; return; }
+  el.innerHTML = soon.map(t => {
+    const cl = cm[t.client_id], sd = sdsp(t);
+    return `<div class="card ${sd === 'overdue' ? 'overdue' : ''}">
+      <div class="card-body">
+        <div class="card-title">${t.title}</div>
+        <div class="card-meta"><span class="badge badge-${t.priority}">${PL[t.priority]}</span>${cl ? `<span>🏢 ${cl.name}</span>` : ''}${t.assignee_name ? `<span>👤 ${t.assignee_name}</span>` : ''}<span>📅 ${fmtD(t.due_date)}</span></div>
+      </div>
+      <div class="card-actions">
+        <button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="icon-btn reschedule" onclick="openReschedule('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════════════════════════
+function calcStreak() {
+  const dates = [...new Set(tasks.filter(t => t.completed_at).map(t => t.completed_at.slice(0, 10)))].sort().reverse();
+  if (!dates.length) return { cur: 0, best: 0 };
+  let cur = 0, d = new Date();
+  for (let i = 0; i < 365; i++) { const ds = d.toISOString().slice(0, 10); if (dates.includes(ds)) cur++; else if (i > 0) break; d.setDate(d.getDate() - 1); }
+  let best = 1, run = 1;
+  for (let i = 1; i < dates.length; i++) { const diff = (new Date(dates[i - 1]) - new Date(dates[i])) / 86400000; if (diff === 1) { run++; best = Math.max(best, run); } else run = 1; }
+  return { cur, best };
+}
+function bar(label, val, tot, color) {
+  const pct = tot ? Math.round(val / tot * 100) : 0;
+  return `<div class="report-bar-wrap"><div class="report-bar-label"><span>${label}</span><span>${val}/${tot} (${pct}%)</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+}
+function renderReports() {
+  const { cur, best } = calcStreak();
+  document.getElementById('streak-num').textContent = cur;
+  document.getElementById('streak-best').textContent = best;
+  const now = new Date(), ws = new Date(now); ws.setDate(now.getDate() - now.getDay());
+  const wss = ws.toISOString().slice(0, 10);
+  document.getElementById('week-stats').innerHTML = `<div class="stat-card blue"><div class="stat-value">${tasks.filter(t => t.created_at >= wss).length}</div><div class="stat-label">Created</div></div><div class="stat-card green"><div class="stat-value">${tasks.filter(t => t.completed_at && t.completed_at >= wss + 'T00:00:00').length}</div><div class="stat-label">Done</div></div>`;
+  document.getElementById('priority-bars').innerHTML = ['high', 'medium', 'low'].map(p => { const tot = tasks.filter(t => t.priority === p).length, done = tasks.filter(t => t.priority === p && t.status === 'done').length; return bar(PL[p], done, tot, p === 'high' ? 'var(--danger)' : p === 'medium' ? 'var(--warn)' : 'var(--success)'); }).join('') || '<p style="font-size:13px;color:var(--muted)">No tasks yet.</p>';
+  const cm = cmap();
+  document.getElementById('client-task-bars').innerHTML = clients.map(c => { const tot = tasks.filter(t => t.client_id === c.id).length; if (!tot) return ''; const done = tasks.filter(t => t.client_id === c.id && t.status === 'done').length; return bar(c.name, done, tot, 'var(--info)'); }).join('') || '<p style="font-size:13px;color:var(--muted)">No client tasks.</p>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════════
+function dl(content, name, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); }
+function exportCSV() {
+  const cm = cmap();
+  const rows = [['ID', 'Title', 'Status', 'Priority', 'Assignee', 'Recurrence', 'Tags', 'Client', 'Due Date', 'Hours', 'Created']];
+  tasks.forEach(t => rows.push([t.id, t.title, t.status, t.priority, t.assignee_name || '', t.recurrence || 'none', (t.tags || []).join(';'), cm[t.client_id]?.name || '', t.due_date || '', t.hours || 0, t.created_at || '']));
+  dl(rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n'), `taskflow-${toDay()}.csv`, 'text/csv');
+  showToast('✓ CSV exported');
+}
+function exportJSON() { dl(JSON.stringify({ clients, tasks, teams, teamMembers, exported_at: new Date().toISOString() }, null, 2), `taskflow-backup-${toDay()}.json`, 'application/json'); showToast('✓ JSON exported'); }
+async function importJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const ic = data.clients || [], it = data.tasks || [];
+    confirm2('Import Data', `Import ${ic.length} clients and ${it.length} tasks?`, 'Import', 'btn-primary', async () => {
+      for (const c of ic) { const { id, ...r } = c; r.user_id = currentUser.id; await dbIns('clients', r).catch(() => {}); }
+      for (const t of it) { const { id, ...r } = t; r.user_id = currentUser.id; await dbIns('tasks', r).catch(() => {}); }
+      closeModal('confirm-overlay'); showToast('✓ Import complete'); await loadAll();
+    });
+  } catch (e) { showToast('⚠ Invalid JSON file'); }
+  input.value = '';
+}
+function confirmClearData() {
+  confirm2('Delete All Data', 'Delete ALL clients and tasks? Cannot be undone.', 'Delete Everything', 'btn-danger', async () => {
+    for (const t of [...tasks]) await dbDel('tasks', t.id).catch(() => {});
+    for (const c of [...clients]) await dbDel('clients', c.id).catch(() => {});
+    closeModal('confirm-overlay'); showToast('All data deleted'); await loadAll();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// THEME + SQL
+// ═══════════════════════════════════════════════════════════════
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const m = document.getElementById('theme-meta'); if (m) m.content = t === 'dark' ? '#0d0d0f' : '#f3f3f6';
+  localStorage.setItem('tf_theme', t);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.innerHTML = t === 'dark' ? '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="none" stroke="currentColor"/>' : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+function showSQLGuide() { document.getElementById('sql-code').value = SETUP_SQL; openModal('sql-overlay'); }
+async function copySQLToClipboard() { try { await navigator.clipboard.writeText(SETUP_SQL); showToast('✓ SQL copied'); } catch (e) { showToast('⚠ Select and copy manually'); } }
 
 // PWA
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
 // BOOT
 init();
