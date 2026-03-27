@@ -262,6 +262,8 @@ select option{background:var(--surface)}
         <div class="stat-card green"><div class="stat-value" id="s-done">0</div><div class="stat-label">Completed</div></div>
         <div class="stat-card red"><div class="stat-value" id="s-overdue">0</div><div class="stat-label">Overdue</div></div>
       </div>
+      <div class="section-label" style="margin-bottom:8px;margin-top:2px">Billing Summary</div>
+      <div id="billing-summary" style="margin-bottom:16px"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
         <span style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700">Due Soon</span>
         <a href="#" onclick="switchView('tasks');return false" style="font-size:12px;color:var(--accent);text-decoration:none">View all →</a>
@@ -291,6 +293,9 @@ select option{background:var(--surface)}
         <button class="filter-chip" data-filter="done" onclick="setFilter(this,'done')">Done</button>
         <button class="filter-chip" data-filter="overdue" onclick="setFilter(this,'overdue')">Overdue</button>
         <button class="filter-chip" data-filter="mine" onclick="setFilter(this,'mine')">Mine</button>
+        <button class="filter-chip" data-filter="unbilled" onclick="setFilter(this,'unbilled')">Unbilled</button>
+        <button class="filter-chip" data-filter="billed" onclick="setFilter(this,'billed')">Billed</button>
+        <button class="filter-chip" data-filter="collected" onclick="setFilter(this,'collected')">Collected</button>
       </div>
       <div id="tag-filter-row" class="filter-row"></div>
       <div id="tasks-list"></div>
@@ -324,6 +329,8 @@ select option{background:var(--surface)}
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px" id="priority-bars"></div>
       <div class="section-label">By Client</div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px" id="client-task-bars"></div>
+      <div class="section-label">Billing by Client</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px" id="billing-report-bars"></div>
       <div class="divider"></div>
       <div class="section-label">Data</div>
       <div class="export-grid">
@@ -406,7 +413,17 @@ select option{background:var(--surface)}
   </div>
   <div class="form-row">
     <div class="form-group"><label>Recurrence</label><select id="t-recurrence"><option value="none">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
-    <div class="form-group"><label>Hours (for invoice)</label><input id="t-hours" type="number" placeholder="0" step="0.5"/></div>
+    <div class="form-group"><label>Hours</label><input id="t-hours" type="number" placeholder="0" step="0.5"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Billing Amount (₹)</label><input id="t-billing-amount" type="number" placeholder="0" step="0.01"/></div>
+    <div class="form-group"><label>Billing Status</label>
+      <select id="t-billing-status">
+        <option value="unbilled">Unbilled</option>
+        <option value="billed">Billed</option>
+        <option value="collected">Collected</option>
+      </select>
+    </div>
   </div>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('task-overlay')">Cancel</button><button class="btn btn-primary" id="task-save-btn" onclick="saveTask()">Save Task</button></div>
 </div>
@@ -496,6 +513,8 @@ create table if not exists public.tasks (
   assignee_id text, assignee_name text,
   recurrence text default 'none',
   hours numeric default 0,
+  billing_amount numeric default 0,
+  billing_status text default 'unbilled',
   due_date date, scheduled_date date,
   completed_at timestamptz,
   created_at timestamptz default now(), updated_at timestamptz default now()
@@ -535,6 +554,10 @@ create policy "team_members_view" on public.team_members for select using (auth.
 create policy "team_members_manage" on public.team_members for all using (team_id in (select id from public.teams where owner_id = auth.uid()));
 
 -- Realtime
+-- If upgrading existing DB, run these too:
+-- alter table public.tasks add column if not exists billing_amount numeric default 0;
+-- alter table public.tasks add column if not exists billing_status text default 'unbilled';
+
 alter publication supabase_realtime add table public.clients;
 alter publication supabase_realtime add table public.tasks;
 alter publication supabase_realtime add table public.teams;
@@ -861,7 +884,7 @@ function openTaskModal(id = null) {
   document.getElementById('t-title').value = ''; document.getElementById('t-desc').value = '';
   document.getElementById('t-priority').value = 'medium'; document.getElementById('t-status').value = 'todo';
   document.getElementById('t-due').value = ''; document.getElementById('t-sched').value = toDay();
-  document.getElementById('t-recurrence').value = 'none'; document.getElementById('t-hours').value = '0';
+  document.getElementById('t-recurrence').value = 'none'; document.getElementById('t-hours').value = '0'; document.getElementById('t-billing-amount').value = '0'; document.getElementById('t-billing-status').value = 'unbilled';
   currentTags = [];
   const sel = document.getElementById('t-client');
   sel.innerHTML = '<option value="">— No client —</option>' + clients.map(c => `<option value="${c.id}">${c.name}${c.company ? ` (${c.company})` : ''}</option>`).join('');
@@ -873,7 +896,7 @@ function openTaskModal(id = null) {
       document.getElementById('t-client').value = t.client_id || ''; document.getElementById('t-priority').value = t.priority || 'medium';
       document.getElementById('t-status').value = t.status || 'todo'; document.getElementById('t-due').value = t.due_date || '';
       document.getElementById('t-sched').value = t.scheduled_date || ''; document.getElementById('t-recurrence').value = t.recurrence || 'none';
-      document.getElementById('t-hours').value = t.hours || 0;
+      document.getElementById('t-hours').value = t.hours || 0; document.getElementById('t-billing-amount').value = t.billing_amount || 0; document.getElementById('t-billing-status').value = t.billing_status || 'unbilled';
       if (t.assignee_id) document.getElementById('t-assignee').value = `${t.assignee_id}|${t.assignee_name || ''}`;
       currentTags = Array.isArray(t.tags) ? [...t.tags] : [];
     }
@@ -898,6 +921,8 @@ async function saveTask() {
     client_id: clientVal || null, priority: document.getElementById('t-priority').value,
     status: statusVal, tags: currentTags, assignee_id: assigneeId || null, assignee_name: assigneeName || null,
     recurrence: recurrence || 'none', hours: parseFloat(document.getElementById('t-hours').value) || 0,
+    billing_amount: parseFloat(document.getElementById('t-billing-amount').value) || 0,
+    billing_status: document.getElementById('t-billing-status').value || 'unbilled',
     due_date: document.getElementById('t-due').value || null,
     scheduled_date: document.getElementById('t-sched').value || null,
     updated_at: new Date().toISOString(),
@@ -928,6 +953,7 @@ async function createNextRecurring(t) {
     client_id: t.client_id, priority: t.priority, status: 'todo',
     tags: t.tags || [], assignee_id: t.assignee_id, assignee_name: t.assignee_name,
     recurrence: t.recurrence, hours: t.hours || 0,
+    billing_amount: t.billing_amount || 0, billing_status: 'unbilled',
     due_date: nextDate, scheduled_date: nextDate
   });
   showToast('↻ Next recurring task created', 3000);
@@ -974,6 +1000,9 @@ function renderTasks() {
   let filtered = tasks;
   if (taskFilter === 'overdue') filtered = tasks.filter(t => isOvd(t));
   else if (taskFilter === 'mine') filtered = tasks.filter(t => t.assignee_id === currentUser.id || t.user_id === currentUser.id);
+  else if (taskFilter === 'unbilled') filtered = tasks.filter(t => (!t.billing_status || t.billing_status === 'unbilled') && t.billing_amount > 0);
+  else if (taskFilter === 'billed') filtered = tasks.filter(t => t.billing_status === 'billed');
+  else if (taskFilter === 'collected') filtered = tasks.filter(t => t.billing_status === 'collected');
   else if (taskFilter !== 'all') filtered = tasks.filter(t => t.status === taskFilter && !isOvd(t));
   if (activeTagFilter) filtered = filtered.filter(t => (t.tags || []).includes(activeTagFilter));
   if (q) filtered = filtered.filter(t => { const cl = cm[t.client_id]; return t.title.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q) || (t.tags || []).some(g => g.toLowerCase().includes(q)) || (cl?.name || '').toLowerCase().includes(q) || (t.assignee_name || '').toLowerCase().includes(q); });
@@ -989,7 +1018,7 @@ function renderTasks() {
       <div class="card-body">
         <div class="card-title">${t.title}</div>
         <div class="card-meta" style="margin-bottom:4px"><span class="badge badge-${sd}">${SL[sd] || sd}</span><span class="badge badge-${t.priority}">${PL[t.priority]}</span>${recHtml}${tagHtml}</div>
-        <div class="card-meta">${cl ? `<span>🏢 ${cl.name}</span>` : ''}${assigneeHtml}${t.due_date ? `<span>📅 ${fmtD(t.due_date)}</span>` : ''}${t.hours ? `<span>⏱ ${t.hours}h</span>` : ''}</div>
+        <div class="card-meta">${cl ? `<span>🏢 ${cl.name}</span>` : ''}${assigneeHtml}${t.due_date ? `<span>📅 ${fmtD(t.due_date)}</span>` : ''}${t.hours ? `<span>⏱ ${t.hours}h</span>` : ''}${t.billing_amount ? `<span style="color:${t.billing_status==='collected'?'var(--success)':t.billing_status==='billed'?'var(--info)':'var(--warn)'}">₹${Number(t.billing_amount).toLocaleString('en-IN')} · ${t.billing_status==='collected'?'Collected':t.billing_status==='billed'?'Billed':'Unbilled'}</span>` : ''}</div>
       </div>
       <div class="card-actions" style="flex-direction:column">
         <button class="icon-btn edit" onclick="openTaskModal('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
@@ -1147,6 +1176,47 @@ function renderDashboard() {
   document.getElementById('s-tasks').textContent = tasks.length;
   document.getElementById('s-done').textContent = tasks.filter(t => t.status === 'done').length;
   document.getElementById('s-overdue').textContent = tasks.filter(t => isOvd(t)).length;
+
+  // Billing summary
+  const fmt = n => '₹' + Number(n||0).toLocaleString('en-IN', {minimumFractionDigits:0,maximumFractionDigits:0});
+  const bDue     = tasks.filter(t => t.status === 'todo' || isOvd(t)).reduce((s,t) => s + (Number(t.billing_amount)||0), 0);
+  const bWip     = tasks.filter(t => t.status === 'in-progress').reduce((s,t) => s + (Number(t.billing_amount)||0), 0);
+  const bDone    = tasks.filter(t => t.status === 'done' && (!t.billing_status || t.billing_status === 'unbilled')).reduce((s,t) => s + (Number(t.billing_amount)||0), 0);
+  const bBilled  = tasks.filter(t => t.billing_status === 'billed').reduce((s,t) => s + (Number(t.billing_amount)||0), 0);
+  const bCollect = tasks.filter(t => t.billing_status === 'collected').reduce((s,t) => s + (Number(t.billing_amount)||0), 0);
+  const bTotal   = tasks.reduce((s,t) => s + (Number(t.billing_amount)||0), 0);
+  const billingEl = document.getElementById('billing-summary');
+  if (billingEl) billingEl.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)">
+        <div style="padding:10px 12px;border-right:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Due / Overdue</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--danger)">${fmt(bDue)}</div>
+        </div>
+        <div style="padding:10px 12px;border-right:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">In Progress</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--info)">${fmt(bWip)}</div>
+        </div>
+        <div style="padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Done (Unbilled)</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--warn)">${fmt(bDone)}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr">
+        <div style="padding:10px 12px;border-right:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Billed</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--accent)">${fmt(bBilled)}</div>
+        </div>
+        <div style="padding:10px 12px;border-right:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Collected</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--success)">${fmt(bCollect)}</div>
+        </div>
+        <div style="padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Total Pipeline</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text)">${fmt(bTotal)}</div>
+        </div>
+      </div>
+    </div>`;
   const t7 = new Date(); t7.setDate(t7.getDate() + 7);
   const td = toDay(), t7s = t7.toISOString().slice(0, 10);
   const soon = tasks.filter(t => t.status !== 'done' && t.due_date && t.due_date >= td && t.due_date <= t7s).sort((a, b) => a.due_date.localeCompare(b.due_date)).slice(0, 5);
@@ -1193,6 +1263,30 @@ function renderReports() {
   document.getElementById('priority-bars').innerHTML = ['high', 'medium', 'low'].map(p => { const tot = tasks.filter(t => t.priority === p).length, done = tasks.filter(t => t.priority === p && t.status === 'done').length; return bar(PL[p], done, tot, p === 'high' ? 'var(--danger)' : p === 'medium' ? 'var(--warn)' : 'var(--success)'); }).join('') || '<p style="font-size:13px;color:var(--muted)">No tasks yet.</p>';
   const cm = cmap();
   document.getElementById('client-task-bars').innerHTML = clients.map(c => { const tot = tasks.filter(t => t.client_id === c.id).length; if (!tot) return ''; const done = tasks.filter(t => t.client_id === c.id && t.status === 'done').length; return bar(c.name, done, tot, 'var(--info)'); }).join('') || '<p style="font-size:13px;color:var(--muted)">No client tasks.</p>';
+
+  // Billing by client
+  const fmtR = n => '₹' + Number(n||0).toLocaleString('en-IN', {minimumFractionDigits:0});
+  const billingReportEl = document.getElementById('billing-report-bars');
+  if (billingReportEl) {
+    const clientBilling = clients.map(c => {
+      const ct = tasks.filter(t => t.client_id === c.id && t.billing_amount > 0);
+      if (!ct.length) return '';
+      const total     = ct.reduce((s,t) => s+(Number(t.billing_amount)||0), 0);
+      const billed    = ct.filter(t => t.billing_status === 'billed').reduce((s,t) => s+(Number(t.billing_amount)||0), 0);
+      const collected = ct.filter(t => t.billing_status === 'collected').reduce((s,t) => s+(Number(t.billing_amount)||0), 0);
+      const pct = total ? Math.round(collected/total*100) : 0;
+      return `<div class="report-bar-wrap">
+        <div class="report-bar-label"><span>${c.name}</span><span>${fmtR(collected)} / ${fmtR(total)}</span></div>
+        <div class="report-bar-track"><div class="report-bar-fill" style="width:${pct}%;background:var(--success)"></div></div>
+        <div style="display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:3px">
+          <span>Unbilled: ${fmtR(total-billed-collected)}</span>
+          <span style="color:var(--info)">Billed: ${fmtR(billed)}</span>
+          <span style="color:var(--success)">Collected: ${fmtR(collected)}</span>
+        </div>
+      </div>`;
+    }).join('');
+    billingReportEl.innerHTML = clientBilling || '<p style="font-size:13px;color:var(--muted)">No billing data yet.</p>';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1201,8 +1295,8 @@ function renderReports() {
 function dl(content, name, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); }
 function exportCSV() {
   const cm = cmap();
-  const rows = [['ID', 'Title', 'Status', 'Priority', 'Assignee', 'Recurrence', 'Tags', 'Client', 'Due Date', 'Hours', 'Created']];
-  tasks.forEach(t => rows.push([t.id, t.title, t.status, t.priority, t.assignee_name || '', t.recurrence || 'none', (t.tags || []).join(';'), cm[t.client_id]?.name || '', t.due_date || '', t.hours || 0, t.created_at || '']));
+  const rows = [['ID', 'Title', 'Status', 'Priority', 'Assignee', 'Recurrence', 'Tags', 'Client', 'Due Date', 'Hours', 'Billing Amount', 'Billing Status', 'Created']];
+  tasks.forEach(t => rows.push([t.id, t.title, t.status, t.priority, t.assignee_name || '', t.recurrence || 'none', (t.tags || []).join(';'), cm[t.client_id]?.name || '', t.due_date || '', t.hours || 0, t.billing_amount || 0, t.billing_status || 'unbilled', t.created_at || '']));
   dl(rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n'), `taskflow-${toDay()}.csv`, 'text/csv');
   showToast('✓ CSV exported');
 }
