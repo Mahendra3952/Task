@@ -237,6 +237,25 @@ select option{background:var(--surface)}
 .cal-day.today .cal-day-num{color:var(--accent);font-weight:700}
 .cal-dot{height:5px;border-radius:3px;margin-bottom:1px;font-size:8px;padding:0 2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#000;line-height:6px}
 
+
+/* SERVICES */
+.checklist-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surf2);border-radius:7px;margin-bottom:5px;font-size:13px}
+.checklist-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.checklist-item.checked span{text-decoration:line-through;color:var(--muted)}
+.checklist-item-del{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:0;flex-shrink:0;opacity:.6}
+.checklist-item-del:hover{color:var(--danger);opacity:1}
+.service-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+.service-card-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+.service-icon{width:36px;height:36px;border-radius:9px;background:color-mix(in srgb,var(--info) 12%,var(--surf2));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+.service-card-body{flex:1;min-width:0}
+.service-card-title{font-weight:500;font-size:14px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.service-card-meta{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.service-card-footer{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.step-pill{display:inline-flex;align-items:center;padding:2px 8px;background:var(--surf2);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--muted)}
+.doc-pill{display:inline-flex;align-items:center;padding:2px 8px;background:color-mix(in srgb,var(--info) 10%,var(--surf2));border:1px solid color-mix(in srgb,var(--info) 20%,var(--border));border-radius:6px;font-size:11px;color:var(--info)}
+.progress-bar-wrap{margin-top:6px}
+.progress-bar-track{height:4px;background:var(--surf2);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:2px;background:var(--success);transition:width .3s ease}
 /* MEMBER ROW */
 .member-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
 .member-avatar{width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:var(--accent);flex-shrink:0}
@@ -368,6 +387,18 @@ select option{background:var(--surface)}
       <div id="cal-day-tasks"></div>
     </div>
 
+    <!-- SERVICES (owner only) -->
+    <div class="view" id="view-services">
+      <div class="page-header"><span class="page-title">Services</span>
+        <button class="btn btn-primary btn-sm" id="new-service-btn" onclick="openServiceModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
+        </button>
+      </div>
+      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="service-search" placeholder="Search services…" oninput="renderServices()"/></div>
+      <div class="filter-row" id="service-cat-filters"></div>
+      <div id="services-list"></div>
+    </div>
+
     <!-- TEAM (owner only) -->
     <div class="view" id="view-team"><div id="team-content"></div></div>
 
@@ -397,6 +428,9 @@ select option{background:var(--surface)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
       <span class="nav-badge" id="approval-nav-badge" style="display:none">!</span>
     </button>
+    <button class="nav-btn owner-only" data-view="services" onclick="switchView('services')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Services
+    </button>
     <button class="nav-btn owner-only" data-view="clients" onclick="switchView('clients')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients
     </button>
@@ -420,11 +454,42 @@ select option{background:var(--surface)}
 <div class="modal">
   <div class="modal-header"><span class="modal-title" id="task-modal-title">New Task</span><button class="modal-close" onclick="closeModal('task-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
   <input type="hidden" id="task-id"/>
-  <div class="form-group"><label>Title *</label><input id="t-title" placeholder="Design landing page"/></div>
+  <div class="form-row">
+    <div class="form-group"><label>Service</label><select id="t-service" onchange="onServiceSelect()"><option value="">— No service —</option></select></div>
+    <div class="form-group"><label>Client</label><select id="t-client"><option value="">— No client —</option></select></div>
+  </div>
+  <div class="form-group" id="t-period-group" style="display:none">
+    <label>Service Period <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(e.g. Apr 2025 – Mar 2026)</small></label>
+    <input id="t-service-period" placeholder="e.g. Q1 2025, FY 2025-26…"/>
+  </div>
+  <div class="form-group"><label>Title *</label><input id="t-title" placeholder="Task title"/></div>
   <div class="form-group"><label>Description</label><textarea id="t-desc" placeholder="What needs to be done?"></textarea></div>
   <div class="form-row">
-    <div class="form-group"><label>Client</label><select id="t-client"><option value="">— No client —</option></select></div>
     <div class="form-group"><label>Assignee</label><select id="t-assignee"><option value="">— Unassigned —</option></select></div>
+    <div class="form-group"><label>Priority</label><select id="t-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+  </div>
+  <!-- Dynamic sub-services from service template -->
+  <div id="t-sub-services-section">
+    <div class="form-group">
+      <label>Steps / Sub Tasks <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(check off as completed)</small></label>
+      <div id="t-sub-services-list" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="t-sub-service-input" placeholder="Add a step…" style="flex:1;font-size:13px" onkeydown="if(event.key==='Enter'){event.preventDefault();addTaskSubService();}"/>
+        <button class="btn btn-ghost btn-sm" onclick="addTaskSubService()">+ Add</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Document Checklist <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(check off as received)</small></label>
+      <div id="t-doc-list" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="t-doc-input" placeholder="Add document…" style="flex:1;font-size:13px" onkeydown="if(event.key==='Enter'){event.preventDefault();addTaskDoc();}"/>
+        <button class="btn btn-ghost btn-sm" onclick="addTaskDoc()">+ Add</button>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Status</label><select id="t-status"><option value="todo">To-Do</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div>
+    <div class="form-group"><label>Due Date</label><input id="t-due" type="date"/></div>
   </div>
   <div class="form-group">
     <label>Tags <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(Enter or comma)</small></label>
@@ -433,23 +498,51 @@ select option{background:var(--surface)}
     </div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label>Priority</label><select id="t-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
-    <div class="form-group"><label>Status</label><select id="t-status"><option value="todo">To-Do</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label>Due Date</label><input id="t-due" type="date"/></div>
     <div class="form-group"><label>Hours</label><input id="t-hours" type="number" placeholder="0" step="0.5"/></div>
+    <div class="form-group" id="owner-billing-amount-group"><label>Billing (₹)</label><input id="t-billing-amount" type="number" placeholder="0" step="0.01"/></div>
   </div>
-  <!-- OWNER ONLY billing fields -->
+  <!-- OWNER ONLY billing status -->
   <div id="owner-billing-fields">
-    <div class="form-row">
-      <div class="form-group"><label>Billing Amount (₹)</label><input id="t-billing-amount" type="number" placeholder="0" step="0.01"/></div>
-      <div class="form-group"><label>Billing Status</label>
-        <select id="t-billing-status"><option value="unbilled">Unbilled</option><option value="billed">Billed</option><option value="collected">Collected</option></select>
-      </div>
+    <div class="form-group"><label>Billing Status</label>
+      <select id="t-billing-status"><option value="unbilled">Unbilled</option><option value="billed">Billed</option><option value="collected">Collected</option></select>
     </div>
   </div>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('task-overlay')">Cancel</button><button class="btn btn-primary" id="task-save-btn" onclick="saveTask()">Save Task</button></div>
+</div>
+</div>
+
+<!-- SERVICE MODAL -->
+<div class="overlay" id="service-overlay" onclick="closeIfBackdrop(event,'service-overlay')">
+<div class="modal">
+  <div class="modal-header"><span class="modal-title" id="service-modal-title">New Service</span><button class="modal-close" onclick="closeModal('service-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <input type="hidden" id="service-id"/>
+  <div class="form-row">
+    <div class="form-group"><label>Service Name *</label><input id="s-name" placeholder="GST Filing"/></div>
+    <div class="form-group"><label>Category</label><input id="s-category" placeholder="Tax, Compliance…"/></div>
+  </div>
+  <div class="form-group"><label>Service Type</label>
+    <select id="s-type">
+      <option value="adhoc">Adhoc</option>
+      <option value="recurring">Recurring</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Sub Services / Steps <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(steps to complete this service)</small></label>
+    <div id="sub-services-list" style="margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px">
+      <input id="sub-service-input" placeholder="Add a step…" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubService();}"/>
+      <button class="btn btn-ghost btn-sm" onclick="addSubService()">+ Add</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Document Checklist <small style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(required documents)</small></label>
+    <div id="doc-checklist-list" style="margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px">
+      <input id="doc-input" placeholder="Add a document…" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addDocItem();}"/>
+      <button class="btn btn-ghost btn-sm" onclick="addDocItem()">+ Add</button>
+    </div>
+  </div>
+  <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('service-overlay')">Cancel</button><button class="btn btn-primary" id="service-save-btn" onclick="saveService()">Save Service</button></div>
 </div>
 </div>
 
@@ -582,11 +675,23 @@ create table if not exists public.clients (
   created_at timestamptz default now(), updated_at timestamptz default now()
 );
 
+create table if not exists public.services (
+  id uuid default gen_random_uuid() primary key,
+  workspace_id uuid references public.workspaces on delete cascade not null,
+  name text not null,
+  category text,
+  service_type text default 'adhoc',
+  sub_services jsonb default '[]',
+  document_checklist jsonb default '[]',
+  created_at timestamptz default now(), updated_at timestamptz default now()
+);
+
 create table if not exists public.tasks (
   id uuid default gen_random_uuid() primary key,
   workspace_id uuid references public.workspaces on delete cascade not null,
   created_by uuid references auth.users on delete set null,
   client_id uuid references public.clients(id) on delete set null,
+  service_id uuid references public.services(id) on delete set null,
   title text not null, description text,
   status text default 'todo',
   priority text default 'medium',
@@ -596,6 +701,9 @@ create table if not exists public.tasks (
   hours numeric default 0,
   billing_amount numeric default 0,
   billing_status text default 'unbilled',
+  service_period text,
+  sub_services jsonb default '[]',
+  document_checklist jsonb default '[]',
   approval_status text default null,
   rejection_reason text default null,
   due_date date, scheduled_date date,
@@ -617,6 +725,7 @@ create table if not exists public.task_comments (
 alter table public.workspaces enable row level security;
 alter table public.workspace_members enable row level security;
 alter table public.clients enable row level security;
+alter table public.services enable row level security;
 alter table public.tasks enable row level security;
 alter table public.task_comments enable row level security;
 
@@ -669,6 +778,23 @@ create policy "comments_ws" on public.task_comments for all
     or workspace_id in (select id from public.workspaces where owner_id = auth.uid())
   );
 
+-- ⚠ UPGRADING EXISTING DB? Run these migration lines:
+-- create table if not exists public.services (id uuid default gen_random_uuid() primary key, workspace_id uuid references public.workspaces on delete cascade not null, name text not null, category text, service_type text default 'adhoc', sub_services jsonb default '[]', document_checklist jsonb default '[]', created_at timestamptz default now(), updated_at timestamptz default now());
+-- alter table public.tasks add column if not exists service_id uuid references public.services(id) on delete set null;
+-- alter table public.tasks add column if not exists service_period text;
+-- alter table public.tasks add column if not exists sub_services jsonb default '[]';
+-- alter table public.tasks add column if not exists document_checklist jsonb default '[]';
+
+-- Services RLS
+drop policy if exists "services_ws" on public.services;
+create policy "services_ws" on public.services for all
+  using (
+    workspace_id in (select id from public.workspaces where owner_id = auth.uid())
+    or workspace_id in (select workspace_id from public.workspace_members where (user_id = auth.uid() or email = (select email from auth.users where id = auth.uid())) and status = 'active')
+  );
+
+alter publication supabase_realtime add table public.services;
+
 -- Realtime
 alter publication supabase_realtime add table public.workspaces;
 alter publication supabase_realtime add table public.workspace_members;
@@ -691,7 +817,7 @@ let currentWorkspace = null;  // { id, name, owner_id }
 let myRole = 'staff';          // 'owner' or 'staff'
 let myMemberId = null;
 
-let clients = [], tasks = [], comments = [], members = [];
+let clients = [], tasks = [], comments = [], members = [], services = [];
 let currentView = 'dashboard';
 let taskFilter = 'all', activeTagFilter = '';
 let currentTags = [];
@@ -734,10 +860,11 @@ async function loadAll() {
   setSyncState('syncing');
   try {
     const wsId = currentWorkspace.id;
-    [clients, tasks, members] = await Promise.all([
+    [clients, tasks, members, services] = await Promise.all([
       dbAll('clients', { workspace_id: wsId }),
       dbAll('tasks', { workspace_id: wsId }),
-      dbAll('workspace_members', { workspace_id: wsId })
+      dbAll('workspace_members', { workspace_id: wsId }),
+      dbAll('services', { workspace_id: wsId })
     ]);
     setSyncState('live');
   } catch (e) {
@@ -761,6 +888,7 @@ function startRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'clients', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'workspace_members', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'services', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'task_comments', filter: `workspace_id=eq.${currentWorkspace.id}` }, () => {
       if (detailTaskId) loadComments(detailTaskId).then(renderComments);
     })
@@ -922,8 +1050,7 @@ function applyRoleUI() {
   document.getElementById('owner-billing-fields').style.display = isOwner() ? 'block' : 'none';
   // Clients nav only for owner
   if (!isOwner()) {
-    // If staff lands on clients/team/reports, redirect to tasks
-    if (['clients','team','reports'].includes(currentView)) currentView = 'tasks';
+    if (['clients','team','reports','services'].includes(currentView)) currentView = 'tasks';
   }
 }
 
@@ -953,7 +1080,7 @@ async function init() {
 // ════════════════════════════════════════════════════════════════
 function switchView(v) {
   // Staff can't access owner-only views
-  if (!isOwner() && ['clients','team','reports'].includes(v)) return;
+  if (!isOwner() && ['clients','team','reports','services'].includes(v)) return;
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
@@ -966,6 +1093,7 @@ function renderCurrentView() {
   else if (currentView === 'clients') renderClients();
   else if (currentView === 'tasks') renderTasks();
   else if (currentView === 'calendar') renderCalendar();
+  else if (currentView === 'services') renderServices();
   else if (currentView === 'team') renderTeam();
   else if (currentView === 'reports') renderReports();
 }
@@ -1043,6 +1171,155 @@ function handleTagKey(e){
 function handleTagInput(e){if(e.target.value.endsWith(',')){const v=e.target.value.slice(0,-1).trim();if(v&&!currentTags.includes(v)){currentTags.push(v);renderTagChips();}e.target.value='';}}
 
 // ════════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════════
+// SERVICES CRUD (owner only)
+// ════════════════════════════════════════════════════════════════
+
+// ── Service modal state ──
+let serviceSubServices = [];  // [{id, title}]
+let serviceDocChecklist = []; // [{id, title}]
+
+function renderServiceSubList() {
+  const el = document.getElementById('sub-services-list');
+  if (!el) return;
+  el.innerHTML = serviceSubServices.map((s, i) => `
+    <div class="checklist-item">
+      <span style="font-size:12px;color:var(--muted);min-width:18px">${i+1}.</span>
+      <span style="flex:1">${s.title}</span>
+      <button class="checklist-item-del" onclick="removeServiceSub(${i})">×</button>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--muted);padding:4px 0">No steps added yet.</div>';
+}
+function renderServiceDocList() {
+  const el = document.getElementById('doc-checklist-list');
+  if (!el) return;
+  el.innerHTML = serviceDocChecklist.map((d, i) => `
+    <div class="checklist-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" style="width:14px;height:14px;flex-shrink:0"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span style="flex:1">${d.title}</span>
+      <button class="checklist-item-del" onclick="removeServiceDoc(${i})">×</button>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--muted);padding:4px 0">No documents added yet.</div>';
+}
+function addSubService() {
+  const inp = document.getElementById('sub-service-input');
+  const v = inp?.value.trim();
+  if (!v) return;
+  serviceSubServices.push({ id: Date.now().toString(), title: v });
+  inp.value = '';
+  renderServiceSubList();
+}
+function addDocItem() {
+  const inp = document.getElementById('doc-input');
+  const v = inp?.value.trim();
+  if (!v) return;
+  serviceDocChecklist.push({ id: Date.now().toString(), title: v });
+  inp.value = '';
+  renderServiceDocList();
+}
+function removeServiceSub(i) { serviceSubServices.splice(i, 1); renderServiceSubList(); }
+function removeServiceDoc(i) { serviceDocChecklist.splice(i, 1); renderServiceDocList(); }
+
+function openServiceModal(id = null) {
+  serviceSubServices = [];
+  serviceDocChecklist = [];
+  document.getElementById('service-id').value = id || '';
+  document.getElementById('service-modal-title').textContent = id ? 'Edit Service' : 'New Service';
+  document.getElementById('s-name').value = '';
+  document.getElementById('s-category').value = '';
+  document.getElementById('s-type').value = 'adhoc';
+  if (id) {
+    const s = services.find(x => x.id === id);
+    if (s) {
+      document.getElementById('s-name').value = s.name || '';
+      document.getElementById('s-category').value = s.category || '';
+      document.getElementById('s-type').value = s.service_type || 'adhoc';
+      serviceSubServices = Array.isArray(s.sub_services) ? JSON.parse(JSON.stringify(s.sub_services)) : [];
+      serviceDocChecklist = Array.isArray(s.document_checklist) ? JSON.parse(JSON.stringify(s.document_checklist)) : [];
+    }
+  }
+  renderServiceSubList();
+  renderServiceDocList();
+  openModal('service-overlay');
+}
+
+async function saveService() {
+  const name = document.getElementById('s-name').value.trim();
+  if (!name) { showToast('⚠ Service name required'); return; }
+  const id = document.getElementById('service-id').value;
+  const btn = document.getElementById('service-save-btn'); btn.disabled = true;
+  const row = {
+    name,
+    category: document.getElementById('s-category').value.trim() || null,
+    service_type: document.getElementById('s-type').value,
+    sub_services: serviceSubServices,
+    document_checklist: serviceDocChecklist,
+    updated_at: new Date().toISOString()
+  };
+  try {
+    if (id) { await dbUpd('services', id, row); showToast('✓ Service updated'); }
+    else { row.workspace_id = currentWorkspace.id; await dbIns('services', row); showToast('✓ Service added'); }
+    closeModal('service-overlay');
+    await loadAll();
+  } catch (e) { showToast('⚠ ' + e.message); }
+  btn.disabled = false;
+}
+
+function deleteService(id) {
+  const s = services.find(x => x.id === id);
+  confirm2('Delete Service', `Delete "${s?.name}"? Tasks linked to it will keep their data.`, 'Delete', 'btn-danger', async () => {
+    await dbDel('services', id).catch(e => showToast('⚠ ' + e.message));
+    closeModal('confirm-overlay');
+    showToast('Service deleted');
+    await loadAll();
+  });
+}
+
+function renderServices() {
+  const q = (document.getElementById('service-search')?.value || '').toLowerCase();
+  // Build category filter chips
+  const cats = [...new Set(services.map(s => s.category).filter(Boolean))].sort();
+  const catEl = document.getElementById('service-cat-filters');
+  if (catEl) {
+    catEl.innerHTML = ['All', ...cats].map(c => `<button class="filter-chip${(window._svcCat||'All')===c?' active':''}" onclick="window._svcCat='${c}';renderServices()">${c}</button>`).join('');
+  }
+  const activeCat = window._svcCat || 'All';
+  let list = services;
+  if (q) list = list.filter(s => s.name.toLowerCase().includes(q) || (s.category||'').toLowerCase().includes(q));
+  if (activeCat !== 'All') list = list.filter(s => s.category === activeCat);
+
+  const el = document.getElementById('services-list');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><p>${q ? 'No services match.' : 'No services yet.<br/>Add your first service.'}</p></div>`;
+    return;
+  }
+  const SVC_ICONS = { adhoc: '⚡', recurring: '↻' };
+  el.innerHTML = list.map(s => {
+    const subs = Array.isArray(s.sub_services) ? s.sub_services : [];
+    const docs = Array.isArray(s.document_checklist) ? s.document_checklist : [];
+    return `<div class="service-card">
+      <div class="service-card-header">
+        <div class="service-icon">${SVC_ICONS[s.service_type] || '⚡'}</div>
+        <div class="service-card-body">
+          <div class="service-card-title">${s.name}</div>
+          <div class="service-card-meta">
+            ${s.category ? `<span class="badge badge-todo">${s.category}</span>` : ''}
+            <span class="badge ${s.service_type==='recurring'?'badge-progress':'badge-medium'}">${s.service_type==='recurring'?'Recurring':'Adhoc'}</span>
+            ${subs.length ? `<span>${subs.length} step${subs.length>1?'s':''}</span>` : ''}
+            ${docs.length ? `<span>${docs.length} doc${docs.length>1?'s':''}</span>` : ''}
+          </div>
+        </div>
+        <div class="card-actions" style="flex-direction:row">
+          <button class="icon-btn edit" onclick="openServiceModal('${s.id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="icon-btn del" onclick="deleteService('${s.id}')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+        </div>
+      </div>
+      ${subs.length ? `<div class="service-card-footer">${subs.slice(0,4).map(ss=>`<span class="step-pill">${ss.title}</span>`).join('')}${subs.length>4?`<span class="step-pill">+${subs.length-4} more</span>`:''}</div>` : ''}
+      ${docs.length ? `<div class="service-card-footer" style="margin-top:4px">${docs.slice(0,3).map(d=>`<span class="doc-pill">📄 ${d.title}</span>`).join('')}${docs.length>3?`<span class="doc-pill">+${docs.length-3} more</span>`:''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
 // CLIENTS (owner only)
 // ════════════════════════════════════════════════════════════════
 function openClientModal(id=null){
@@ -1116,30 +1393,130 @@ function populateAssigneeSelect(){
     activeMembers.map(m=>`<option value="${m.user_id||m.email}|${m.name||m.email}">${m.name||m.email}${m.role==='owner'?' (Owner)':''}</option>`).join('');
 }
 
+
+// ── Task modal sub-service + doc checklist state ──
+let taskSubServices = [];  // [{id, title, done: bool}]
+let taskDocChecklist = []; // [{id, title, checked: bool}]
+
+function onServiceSelect() {
+  const svcId = document.getElementById('t-service')?.value;
+  const svc = svcId ? services.find(s => s.id === svcId) : null;
+  // Show period field for recurring services
+  const periodGroup = document.getElementById('t-period-group');
+  if (periodGroup) periodGroup.style.display = svc?.service_type === 'recurring' ? 'block' : 'none';
+  // Auto-populate title if blank
+  const titleEl = document.getElementById('t-title');
+  if (svc && titleEl && !titleEl.value.trim()) titleEl.value = svc.name;
+  // Pre-populate sub-services and docs from template
+  if (svc) {
+    taskSubServices = (svc.sub_services || []).map(s => ({ ...s, done: false }));
+    taskDocChecklist = (svc.document_checklist || []).map(d => ({ ...d, checked: false }));
+  }
+  renderTaskSubList();
+  renderTaskDocList();
+}
+
+function renderTaskSubList() {
+  const el = document.getElementById('t-sub-services-list');
+  if (!el) return;
+  el.innerHTML = taskSubServices.map((s, i) => `
+    <div class="checklist-item ${s.done ? 'checked' : ''}">
+      <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleTaskSub(${i}, this.checked)"/>
+      <span style="flex:1;font-size:12px">${i+1}. ${s.title}</span>
+      <button class="checklist-item-del" onclick="removeTaskSub(${i})">×</button>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--muted);padding:2px 0">No steps yet.</div>';
+}
+function renderTaskDocList() {
+  const el = document.getElementById('t-doc-list');
+  if (!el) return;
+  el.innerHTML = taskDocChecklist.map((d, i) => `
+    <div class="checklist-item ${d.checked ? 'checked' : ''}">
+      <input type="checkbox" ${d.checked ? 'checked' : ''} onchange="toggleTaskDoc(${i}, this.checked)"/>
+      <span style="flex:1;font-size:12px">📄 ${d.title}</span>
+      <button class="checklist-item-del" onclick="removeTaskDoc(${i})">×</button>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--muted);padding:2px 0">No documents yet.</div>';
+}
+function toggleTaskSub(i, v) { taskSubServices[i].done = v; renderTaskSubList(); }
+function toggleTaskDoc(i, v) { taskDocChecklist[i].checked = v; renderTaskDocList(); }
+function removeTaskSub(i) { taskSubServices.splice(i, 1); renderTaskSubList(); }
+function removeTaskDoc(i) { taskDocChecklist.splice(i, 1); renderTaskDocList(); }
+function addTaskSubService() {
+  const inp = document.getElementById('t-sub-service-input');
+  const v = inp?.value.trim();
+  if (!v) return;
+  taskSubServices.push({ id: Date.now().toString(), title: v, done: false });
+  inp.value = '';
+  renderTaskSubList();
+}
+function addTaskDoc() {
+  const inp = document.getElementById('t-doc-input');
+  const v = inp?.value.trim();
+  if (!v) return;
+  taskDocChecklist.push({ id: Date.now().toString(), title: v, checked: false });
+  inp.value = '';
+  renderTaskDocList();
+}
+// Progress helper shown in task detail
+function subProgress(list) {
+  if (!list || !list.length) return null;
+  const done = list.filter(s => s.done).length;
+  return { done, total: list.length, pct: Math.round(done / list.length * 100) };
+}
+
 function openTaskModal(id=null){
   document.getElementById('task-id').value=id||'';
   document.getElementById('task-modal-title').textContent=id?'Edit Task':'New Task';
   document.getElementById('t-title').value='';document.getElementById('t-desc').value='';
   document.getElementById('t-priority').value='medium';document.getElementById('t-status').value='todo';
   document.getElementById('t-due').value='';document.getElementById('t-hours').value='0';
-  if(isOwner()){document.getElementById('t-billing-amount').value='0';document.getElementById('t-billing-status').value='unbilled';}
+  document.getElementById('t-service-period').value='';
+  const periodGroup = document.getElementById('t-period-group');
+  if(periodGroup) periodGroup.style.display='none';
+  if(isOwner()){
+    const baEl=document.getElementById('t-billing-amount');
+    if(baEl)baEl.value='0';
+    document.getElementById('t-billing-status').value='unbilled';
+  }
+  taskSubServices=[]; taskDocChecklist=[];
   currentTags=[];
-  const sel=document.getElementById('t-client');
-  sel.innerHTML='<option value="">— No client —</option>'+clients.map(c=>`<option value="${c.id}">${c.name}${c.company?` (${c.company})`:''}</option>`).join('');
+  // Populate service dropdown
+  const svcSel=document.getElementById('t-service');
+  if(svcSel) svcSel.innerHTML='<option value="">— No service —</option>'+services.map(s=>`<option value="${s.id}">${s.name}${s.category?' ('+s.category+')':''}</option>`).join('');
+  // Populate client dropdown
+  const clientSel=document.getElementById('t-client');
+  clientSel.innerHTML='<option value="">— No client —</option>'+clients.map(c=>`<option value="${c.id}">${c.name}${c.company?` (${c.company})`:''}</option>`).join('');
   populateAssigneeSelect();
   if(id){
     const t=tasks.find(x=>x.id===id);
     if(t){
-      document.getElementById('t-title').value=t.title||'';document.getElementById('t-desc').value=t.description||'';
-      document.getElementById('t-client').value=t.client_id||'';document.getElementById('t-priority').value=t.priority||'medium';
-      document.getElementById('t-status').value=t.status||'todo';document.getElementById('t-due').value=t.due_date||'';
+      document.getElementById('t-title').value=t.title||'';
+      document.getElementById('t-desc').value=t.description||'';
+      document.getElementById('t-client').value=t.client_id||'';
+      document.getElementById('t-priority').value=t.priority||'medium';
+      document.getElementById('t-status').value=t.status||'todo';
+      document.getElementById('t-due').value=t.due_date||'';
       document.getElementById('t-hours').value=t.hours||0;
-      if(isOwner()){document.getElementById('t-billing-amount').value=t.billing_amount||0;document.getElementById('t-billing-status').value=t.billing_status||'unbilled';}
-      if(t.assignee_id)document.getElementById('t-assignee').value=`${t.assignee_id}|${t.assignee_name||''}`;
+      if(t.service_id && svcSel){ svcSel.value=t.service_id; }
+      if(t.service_period) document.getElementById('t-service-period').value=t.service_period;
+      // Restore service period field visibility
+      const svc=t.service_id?services.find(s=>s.id===t.service_id):null;
+      if(periodGroup && svc?.service_type==='recurring') periodGroup.style.display='block';
+      if(isOwner()){
+        const baEl=document.getElementById('t-billing-amount');
+        if(baEl) baEl.value=t.billing_amount||0;
+        document.getElementById('t-billing-status').value=t.billing_status||'unbilled';
+      }
+      if(t.assignee_id) document.getElementById('t-assignee').value=`${t.assignee_id}|${t.assignee_name||''}`;
       currentTags=Array.isArray(t.tags)?[...t.tags]:[];
+      // Restore sub-services and doc checklist
+      taskSubServices=Array.isArray(t.sub_services)?JSON.parse(JSON.stringify(t.sub_services)):[];
+      taskDocChecklist=Array.isArray(t.document_checklist)?JSON.parse(JSON.stringify(t.document_checklist)):[];
     }
   }
-  renderTagChips();openModal('task-overlay');
+  renderTagChips();
+  renderTaskSubList();
+  renderTaskDocList();
+  openModal('task-overlay');
 }
 
 async function saveTask(){
@@ -1159,9 +1536,13 @@ async function saveTask(){
     status:statusVal,tags:currentTags,
     assignee_id:assigneeId||null,assignee_name:assigneeName||null,
     hours:parseFloat(document.getElementById('t-hours').value)||0,
+    service_id:document.getElementById('t-service')?.value||null,
+    service_period:document.getElementById('t-service-period')?.value.trim()||null,
+    sub_services:taskSubServices,
+    document_checklist:taskDocChecklist,
     // Owner sets billing; staff can't
     ...(isOwner()?{
-      billing_amount:parseFloat(document.getElementById('t-billing-amount').value)||0,
+      billing_amount:parseFloat(document.getElementById('t-billing-amount')?.value)||0,
       billing_status:document.getElementById('t-billing-status').value||'unbilled',
     }:{}),
     due_date:document.getElementById('t-due').value||null,
@@ -1237,8 +1618,15 @@ async function openTaskDetail(id){
   document.getElementById('detail-title').textContent=t.title;
   const cm=cmap();const cl=cm[t.client_id];
   const s=sdsp(t);
+  // Build sub-services live checklist (editable in detail view)
+  const detailSubs = Array.isArray(t.sub_services) ? t.sub_services : [];
+  const detailDocs = Array.isArray(t.document_checklist) ? t.document_checklist : [];
+  const svcName = t.service_id ? services.find(s=>s.id===t.service_id)?.name : null;
+  const subProg = subProgress(detailSubs);
+
   document.getElementById('detail-body').innerHTML=`
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">${statusBadge(t)}<span class="badge badge-${t.priority}">${PL[t.priority]}</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">${statusBadge(t)}<span class="badge badge-${t.priority}">${PL[t.priority]}</span>${svcName?`<span class="badge badge-progress">${svcName}</span>`:''}</div>
+    ${t.service_period?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">📆 Period: ${t.service_period}</div>`:''}
     ${t.description?`<div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:10px">${t.description}</div>`:''}
     <div style="font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
       ${cl?`<span>🏢 ${cl.name}</span>`:''}
@@ -1248,7 +1636,17 @@ async function openTaskDetail(id){
     </div>
     ${isOwner()&&t.billing_amount?`<div style="font-size:12px;color:var(--muted);margin-bottom:8px">💰 ${fmtRs(t.billing_amount)} · <span style="color:${t.billing_status==='collected'?'var(--success)':t.billing_status==='billed'?'var(--info)':'var(--warn)'}">${t.billing_status||'unbilled'}</span></div>`:''}
     ${t.rejection_reason?`<div class="rejection-note">❌ Rejected: ${t.rejection_reason}</div>`:''}
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+    ${detailSubs.length?`
+    <div class="divider" style="margin:10px 0"></div>
+    <div class="section-label" style="margin-bottom:6px">Steps ${subProg?`<span style="font-weight:400;color:var(--success)">${subProg.done}/${subProg.total}</span>`:''}
+    </div>
+    ${subProg?`<div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:${subProg.pct}%"></div></div></div>`:''}
+    <div id="detail-subs" style="margin-top:8px">${detailSubs.map((s,i)=>`<div class="checklist-item ${s.done?'checked':''}"><input type="checkbox" ${s.done?'checked':''} onchange="toggleDetailSub('${id}',${i},this.checked)"/><span style="flex:1;font-size:12px">${i+1}. ${s.title}</span></div>`).join('')}</div>`:''}
+    ${detailDocs.length?`
+    <div class="divider" style="margin:10px 0"></div>
+    <div class="section-label" style="margin-bottom:6px">Documents <span style="font-weight:400;color:var(--success)">${detailDocs.filter(d=>d.checked).length}/${detailDocs.length}</span></div>
+    <div id="detail-docs">${detailDocs.map((d,i)=>`<div class="checklist-item ${d.checked?'checked':''}"><input type="checkbox" ${d.checked?'checked':''} onchange="toggleDetailDoc('${id}',${i},this.checked)"/><span style="flex:1;font-size:12px">📄 ${d.title}</span></div>`).join('')}</div>`:''}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('detail-overlay');openTaskModal('${id}')">Edit</button>
       ${!isOwner()&&(t.status==='in-progress'||t.approval_status==='rejected')?`<button class="btn btn-purple btn-sm" onclick="closeModal('detail-overlay');submitForApproval('${id}')">Submit for Approval</button>`:''}
       ${isOwner()&&t.approval_status==='pending'?`<button class="btn btn-success btn-sm" onclick="closeModal('detail-overlay');approveTask('${id}')">Approve</button><button class="btn btn-danger btn-sm" onclick="closeModal('detail-overlay');openRejectModal('${id}')">Reject</button>`:''}
@@ -1257,6 +1655,33 @@ async function openTaskDetail(id){
   renderComments();
   openModal('detail-overlay');
 }
+
+async function toggleDetailSub(taskId, idx, val) {
+  const t = tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const subs = Array.isArray(t.sub_services) ? JSON.parse(JSON.stringify(t.sub_services)) : [];
+  if (subs[idx]) { subs[idx].done = val; }
+  try {
+    await dbUpd('tasks', taskId, { sub_services: subs, updated_at: new Date().toISOString() });
+    t.sub_services = subs; // local update
+    // Update progress bar in detail without full reload
+    const prog = subProgress(subs);
+    const bar = document.querySelector('#detail-body .progress-bar-fill');
+    if (bar && prog) bar.style.width = prog.pct + '%';
+  } catch(e) { showToast('⚠ ' + e.message); }
+}
+
+async function toggleDetailDoc(taskId, idx, val) {
+  const t = tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const docs = Array.isArray(t.document_checklist) ? JSON.parse(JSON.stringify(t.document_checklist)) : [];
+  if (docs[idx]) { docs[idx].checked = val; }
+  try {
+    await dbUpd('tasks', taskId, { document_checklist: docs, updated_at: new Date().toISOString() });
+    t.document_checklist = docs; // local update
+  } catch(e) { showToast('⚠ ' + e.message); }
+}
+
 function renderComments(){
   const el=document.getElementById('comments-list');if(!el)return;
   if(!comments.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0">No comments yet.</div>';return;}
@@ -1324,12 +1749,15 @@ function renderTasks(){
     const s=sdsp(t),cl=cm[t.client_id];
     const cardClass=s==='pending_approval'?'approval-pending':s==='rejected'?'rejected':s==='overdue'?'overdue':'';
     const tagHtml=(t.tags||[]).map(g=>`<span class="tag">${g}</span>`).join('');
+    const svcForCard=t.service_id?services.find(sv=>sv.id===t.service_id):null;
+    const subProg=subProgress(Array.isArray(t.sub_services)?t.sub_services:[]);
     const billingHtml=isOwner()&&t.billing_amount?`<span style="font-size:10px;color:${t.billing_status==='collected'?'var(--success)':t.billing_status==='billed'?'var(--info)':'var(--warn)'}">₹${Number(t.billing_amount).toLocaleString('en-IN')} · ${t.billing_status||'unbilled'}</span>`:'';
     return `<div class="card ${cardClass}">
       <div class="card-body" onclick="openTaskDetail('${t.id}')" style="cursor:pointer">
         <div class="card-title">${t.title}</div>
         <div class="card-meta" style="margin-bottom:4px">${statusBadge(t)}<span class="badge badge-${t.priority}">${PL[t.priority]}</span>${tagHtml}</div>
-        <div class="card-meta">${cl?`<span>🏢 ${cl.name}</span>`:''}${t.assignee_name?`<span>👤 ${t.assignee_name}</span>`:''} ${t.due_date?`<span>📅 ${fmtD(t.due_date)}</span>`:''} ${billingHtml}</div>
+        <div class="card-meta">${svcForCard?`<span class="badge badge-progress" style="font-size:9px">${svcForCard.name}</span>`:''} ${t.service_period?`<span>📆 ${t.service_period}</span>`:''} ${cl?`<span>🏢 ${cl.name}</span>`:''} ${t.assignee_name?`<span>👤 ${t.assignee_name}</span>`:''} ${t.due_date?`<span>📅 ${fmtD(t.due_date)}</span>`:''} ${billingHtml}</div>
+        ${subProg?`<div class="progress-bar-wrap" style="margin-top:5px"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:2px"><span>Steps</span><span>${subProg.done}/${subProg.total}</span></div><div class="progress-bar-track"><div class="progress-bar-fill" style="width:${subProg.pct}%"></div></div></div>`:''}
         ${t.rejection_reason?`<div class="rejection-note" style="margin-top:6px">❌ ${t.rejection_reason}</div>`:''}
       </div>
       <div class="card-actions">
