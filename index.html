@@ -996,15 +996,21 @@ async function submitWorkspace() {
     } else {
       const token = document.getElementById('ws-token').value.trim().replace(/\s+/g,'');
       if (!token) { err.textContent = 'Invite token required.'; btn.disabled = false; return; }
-      const { data: inv, error: invErr } = await sb.from('workspace_members')
-        .select('id, workspace_id, email, name, role, status, invite_token')
-        .eq('invite_token', token)
-        .maybeSingle();
-      if (invErr) throw new Error('Lookup failed: ' + invErr.message);
-      if (!inv) throw new Error('Token not found. Make sure you copied the full token exactly as shared.');
-      // Fetch workspace separately
-      const { data: ws } = await sb.from('workspaces').select('*').eq('id', inv.workspace_id).single();
-      if (!ws) throw new Error('Workspace not found.');
+      // Use raw fetch to bypass RLS - token lookup must work before user is a member
+      const lookupRes = await fetch(
+        `${SUPA_URL}/rest/v1/workspace_members?invite_token=eq.${encodeURIComponent(token)}&select=id,workspace_id,email,name,role,status,invite_token`,
+        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' } }
+      );
+      const invRows = await lookupRes.json();
+      if (!invRows || !invRows.length) throw new Error('Token not found. Check you copied it fully with no spaces.');
+      const inv = invRows[0];
+      const wsRes = await fetch(
+        `${SUPA_URL}/rest/v1/workspaces?id=eq.${inv.workspace_id}&select=*`,
+        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' } }
+      );
+      const wsRows = await wsRes.json();
+      if (!wsRows || !wsRows.length) throw new Error('Workspace not found.');
+      const ws = wsRows[0];
       await dbUpd('workspace_members', inv.id, { user_id: currentUser.id, status: 'active' });
       currentWorkspace = ws; myRole = 'staff'; myMemberId = inv.id;
     }
