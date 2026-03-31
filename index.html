@@ -994,12 +994,19 @@ async function submitWorkspace() {
       // Add owner as member
       await dbIns('workspace_members', { workspace_id: currentWorkspace.id, user_id: currentUser.id, email: currentUser.email, name: currentUser.user_metadata?.name || 'Owner', role: 'owner', status: 'active' });
     } else {
-      const token = document.getElementById('ws-token').value.trim();
+      const token = document.getElementById('ws-token').value.trim().replace(/\s+/g,'');
       if (!token) { err.textContent = 'Invite token required.'; btn.disabled = false; return; }
-      const { data: inv } = await sb.from('workspace_members').select('*, workspaces(*)').eq('invite_token', token).single();
-      if (!inv) throw new Error('Invalid token. Ask your owner to share the correct code.');
+      const { data: inv, error: invErr } = await sb.from('workspace_members')
+        .select('id, workspace_id, email, name, role, status, invite_token')
+        .eq('invite_token', token)
+        .maybeSingle();
+      if (invErr) throw new Error('Lookup failed: ' + invErr.message);
+      if (!inv) throw new Error('Token not found. Make sure you copied the full token exactly as shared.');
+      // Fetch workspace separately
+      const { data: ws } = await sb.from('workspaces').select('*').eq('id', inv.workspace_id).single();
+      if (!ws) throw new Error('Workspace not found.');
       await dbUpd('workspace_members', inv.id, { user_id: currentUser.id, status: 'active' });
-      currentWorkspace = inv.workspaces; myRole = 'staff'; myMemberId = inv.id;
+      currentWorkspace = ws; myRole = 'staff'; myMemberId = inv.id;
     }
     await bootApp();
   } catch (e) { err.textContent = e.message; }
@@ -1913,15 +1920,30 @@ async function inviteMember(){
   if(!email){err.textContent='Email required.';return;}
   const btn=document.getElementById('invite-btn');btn.disabled=true;
   try{
-    const inv=await dbIns('workspace_members',{workspace_id:currentWorkspace.id,email,name:name||null,role:'staff',status:'pending'});
+    await dbIns('workspace_members',{workspace_id:currentWorkspace.id,email,name:name||null,role:'staff',status:'pending'});
+    // Fetch the row back to get the invite_token
+    const {data:rows} = await sb.from('workspace_members')
+      .select('invite_token').eq('workspace_id',currentWorkspace.id).eq('email',email).single();
     closeModal('invite-overlay');
-    const token=inv[0].invite_token;
-    showToast('✓ Invite created',3000);
-    // Show token to copy
-    setTimeout(()=>alert(`Share this invite token with ${name||email}:\n\n${token}\n\nThey paste it on the Join Workspace screen when signing up.`),500);
     await loadAll();
+    const token = rows?.invite_token || '';
+    // Show token in a copyable way
+    showInviteToken(token, name||email);
   }catch(e){err.textContent=e.message;}
   btn.disabled=false;
+}
+
+function showInviteToken(token, label){
+  document.getElementById('confirm-title').textContent='Invite Token';
+  document.getElementById('confirm-msg').innerHTML=
+    `Share this token with <strong>${label}</strong>. They paste it when joining.<br><br>`+
+    `<div style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:monospace;font-size:12px;word-break:break-all;margin-top:4px;cursor:pointer" onclick="navigator.clipboard.writeText('${token}').then(()=>showToast('✓ Copied'))">${token}</div>`+
+    `<div style="font-size:11px;color:var(--muted);margin-top:8px">Tap the token above to copy it.</div>`;
+  const btn=document.getElementById('confirm-action-btn');
+  btn.textContent='Copy Token';
+  btn.className='btn btn-primary';
+  btn.onclick=()=>{navigator.clipboard.writeText(token).then(()=>showToast('✓ Copied'));closeModal('confirm-overlay');};
+  openModal('confirm-overlay');
 }
 async function removeMember(id){
   confirm2('Remove Member','Remove this member from the workspace?','Remove','btn-danger',async()=>{
@@ -1948,7 +1970,12 @@ function renderTeam(){
       <span class="role-badge ${m.status==='pending'?'pending':m.role==='owner'?'owner':'staff'}">${m.status==='pending'?'Pending':m.role==='owner'?'Owner':'Staff'}</span>
       ${m.role!=='owner'?`<button class="icon-btn del" onclick="removeMember('${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}
     </div>`).join('')}
-    ${members.some(m=>m.status==='pending')?`<div style="background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:11px;margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5">💡 Pending invites: Staff must sign up, then choose <strong>Join Workspace</strong> and paste the token you shared with them.</div>`:''}
+    ${members.filter(m=>m.status==='pending').map(m=>`
+      <div style="background:color-mix(in srgb,var(--accent) 6%,var(--surf2));border:1px solid color-mix(in srgb,var(--accent) 20%,var(--border));border-radius:10px;padding:11px;margin-top:8px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Invite token for <strong>${m.name||m.email}</strong> — tap to copy:</div>
+        <div style="background:var(--surf3);border-radius:6px;padding:8px 10px;font-family:monospace;font-size:11px;word-break:break-all;cursor:pointer;color:var(--accent)" onclick="navigator.clipboard.writeText('${m.invite_token}').then(()=>showToast('✓ Token copied'))">${m.invite_token}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Staff signs up → chooses Join Workspace → pastes this token</div>
+      </div>`).join('')}
     <div class="divider"></div>
     <button class="btn btn-ghost btn-sm" onclick="showSQLGuide()">View SQL setup script</button>`;
 }
