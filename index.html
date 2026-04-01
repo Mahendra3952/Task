@@ -1001,7 +1001,7 @@ async function submitWorkspace() {
       // Use anon key raw fetch - bypasses RLS entirely
       const userEmail = currentUser.email;
       const H = { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
-      const r1 = await fetch(SUPA_URL + '/rest/v1/workspace_members?email=eq.' + encodeURIComponent(userEmail) + '&status=eq.pending&select=*', { headers: H });
+      const r1 = await fetch(SUPA_URL + '/rest/v1/workspace_members?email=ilike.' + encodeURIComponent(userEmail) + '&select=*', { headers: H });
       const rows = await r1.json();
       if (!rows || rows.code || !rows.length) {
         // Try with user auth token as fallback
