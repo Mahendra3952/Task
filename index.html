@@ -996,19 +996,22 @@ async function submitWorkspace() {
     } else {
       const token = document.getElementById('ws-token').value.trim().replace(/\s+/g,'');
       if (!token) { err.textContent = 'Invite token required.'; btn.disabled = false; return; }
-      // Use raw fetch to bypass RLS - token lookup must work before user is a member
-      const lookupRes = await fetch(
-        `${SUPA_URL}/rest/v1/workspace_members?invite_token=eq.${encodeURIComponent(token)}&select=id,workspace_id,email,name,role,status,invite_token`,
-        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' } }
-      );
-      const invRows = await lookupRes.json();
-      if (!invRows || !invRows.length) throw new Error('Token not found. Check you copied it fully with no spaces.');
-      const inv = invRows[0];
-      const wsRes = await fetch(
-        `${SUPA_URL}/rest/v1/workspaces?id=eq.${inv.workspace_id}&select=*`,
-        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' } }
-      );
-      const wsRows = await wsRes.json();
+      // Lookup using anon key (no auth) to bypass RLS
+      const cleanToken = token.trim().toLowerCase();
+      const h = { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' };
+      const r1 = await fetch(`${SUPA_URL}/rest/v1/workspace_members?invite_token=ilike.${encodeURIComponent(cleanToken)}&select=*`, { headers: h });
+      const rows = await r1.json();
+      if (!rows || !rows.length || rows.code) {
+        // Last resort: load all pending and match client-side
+        const r2 = await fetch(`${SUPA_URL}/rest/v1/workspace_members?status=eq.pending&select=*`, { headers: h });
+        const all = await r2.json();
+        const match = Array.isArray(all) ? all.find(m => m.invite_token && m.invite_token.toLowerCase() === cleanToken) : null;
+        if (!match) throw new Error('Token not found. Run SQL: create policy token_lookup on public.workspace_members for select using (true)');
+        rows[0] = match;
+      }
+      const inv = rows[0];
+      const r3 = await fetch(`${SUPA_URL}/rest/v1/workspaces?id=eq.${inv.workspace_id}&select=*`, { headers: h });
+      const wsRows = await r3.json();
       if (!wsRows || !wsRows.length) throw new Error('Workspace not found.');
       const ws = wsRows[0];
       await dbUpd('workspace_members', inv.id, { user_id: currentUser.id, status: 'active' });
