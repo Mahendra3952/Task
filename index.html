@@ -939,38 +939,46 @@ async function submitAuth() {
 // ════════════════════════════════════════════════════════════════
 async function resolveWorkspace() {
   try {
-  // Check if user owns a workspace
-  const { data: owned } = await sb.from('workspaces').select('*').eq('owner_id', currentUser.id).limit(1);
-  if (owned && owned.length > 0) {
-    currentWorkspace = owned[0]; myRole = 'owner';
-    await bootApp(); return;
-  }
-  // Check if user is an active member
-  const { data: membership } = await sb.from('workspace_members')
-    .select('*, workspaces(*)')
-    .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
-    .eq('status', 'active').limit(1);
-  if (membership && membership.length > 0) {
-    currentWorkspace = membership[0].workspaces; myRole = 'staff'; myMemberId = membership[0].id;
-    // Ensure user_id is stamped
-    if (!membership[0].user_id) await dbUpd('workspace_members', membership[0].id, { user_id: currentUser.id, status: 'active' });
-    await bootApp(); return;
-  }
-  // Check if pending invite by email
-  const { data: pending } = await sb.from('workspace_members')
-    .select('*').eq('email', currentUser.email).eq('status', 'pending').limit(1);
-  if (pending && pending.length > 0) {
-    // Auto-activate pending invite matched by email
-    await dbUpd('workspace_members', pending[0].id, { user_id: currentUser.id, status: 'active' });
-    const { data: ws } = await sb.from('workspaces').select('*').eq('id', pending[0].workspace_id).single();
-    currentWorkspace = ws; myRole = 'staff'; myMemberId = pending[0].id;
-    await bootApp(); return;
-  }
-  // No workspace — show setup
-  showWorkspaceScreen();
+    const H = { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
+    const uid = currentUser.id;
+    const email = currentUser.email;
+
+    // 1. Check if owner
+    const { data: owned } = await sb.from('workspaces').select('*').eq('owner_id', uid).limit(1);
+    if (owned && owned.length > 0) {
+      currentWorkspace = owned[0]; myRole = 'owner';
+      await bootApp(); return;
+    }
+
+    // 2. Find membership by user_id OR email using anon fetch (bypasses RLS)
+    const r = await fetch(
+      SUPA_URL + '/rest/v1/workspace_members?select=*&or=(user_id.eq.' + uid + ',email.ilike.' + encodeURIComponent(email) + ')&limit=1',
+      { headers: H }
+    );
+    const rows = await r.json();
+    const member = Array.isArray(rows) && rows.length ? rows[0] : null;
+
+    if (member) {
+      // Stamp user_id and activate if pending
+      const updates = { user_id: uid };
+      if (member.status === 'pending') updates.status = 'active';
+      await fetch(SUPA_URL + '/rest/v1/workspace_members?id=eq.' + member.id,
+        { method: 'PATCH', headers: { ...H, Authorization: 'Bearer ' + (await sb.auth.getSession()).data.session.access_token, Prefer: 'return=minimal' },
+          body: JSON.stringify(updates) });
+
+      // Get workspace
+      const r2 = await fetch(SUPA_URL + '/rest/v1/workspaces?id=eq.' + member.workspace_id + '&select=*', { headers: H });
+      const wsRows = await r2.json();
+      currentWorkspace = (Array.isArray(wsRows) && wsRows.length) ? wsRows[0] : { id: member.workspace_id, name: 'Workspace', owner_id: null };
+      myRole = 'staff'; myMemberId = member.id;
+      await bootApp(); return;
+    }
+
+    // 3. No membership found — show setup screen
+    showWorkspaceScreen();
   } catch(e) {
-    console.warn('Workspace resolve failed:', e.message);
-    showAuthScreen();
+    console.warn('resolveWorkspace error:', e.message);
+    showWorkspaceScreen();
   }
 }
 
