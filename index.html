@@ -1020,9 +1020,18 @@ async function submitWorkspace() {
   btn.disabled = false;
 }
 
+function backToLogin() {
+  sb.auth.signOut().catch(()=>{});
+  currentUser = null; currentWorkspace = null; myRole = 'staff';
+  showAuthScreen();
+}
+
 function confirmSignOut() {
   confirm2('Sign out?', 'Sign out on this device?', 'Sign Out', 'btn-danger', async () => {
-    await sb.auth.signOut(); currentUser = null; currentWorkspace = null; showAuthScreen();
+    closeModal('confirm-overlay');
+    await sb.auth.signOut().catch(()=>{});
+    currentUser = null; currentWorkspace = null; myRole = 'staff';
+    showAuthScreen();
   });
 }
 
