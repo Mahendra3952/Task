@@ -998,21 +998,25 @@ async function submitWorkspace() {
       await dbIns('workspace_members', { workspace_id: currentWorkspace.id, user_id: currentUser.id, email: currentUser.email, name: currentUser.user_metadata?.name || 'Owner', role: 'owner', status: 'active' });
     } else {
       // Lookup using anon key (no auth) to bypass RLS
-      // Match by email - staff must sign up with the same email owner invited
+      // Use anon key raw fetch - bypasses RLS entirely
       const userEmail = currentUser.email;
-      const { data: inv, error: invErr } = await sb.from('workspace_members')
-        .select('*').eq('email', userEmail).eq('status', 'pending').maybeSingle();
-      if (invErr || !inv) throw new Error(`No pending invite found for ${userEmail}. Ask owner to invite this exact email address.`);
-      // Activate membership
-      await dbUpd('workspace_members', inv.id, { user_id: currentUser.id, status: 'active' });
-      // Get workspace
-      const { data: ws } = await sb.from('workspaces').select('*').eq('id', inv.workspace_id).maybeSingle();
-      if (!ws) {
-        // Still blocked - store workspace_id and use minimal object
-        currentWorkspace = { id: inv.workspace_id, name: 'Workspace', owner_id: null };
-      } else {
-        currentWorkspace = ws;
+      const H = { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
+      const r1 = await fetch(SUPA_URL + '/rest/v1/workspace_members?email=eq.' + encodeURIComponent(userEmail) + '&status=eq.pending&select=*', { headers: H });
+      const rows = await r1.json();
+      if (!rows || rows.code || !rows.length) {
+        // Try with user auth token as fallback
+        const r2 = await fetch(SUPA_URL + '/rest/v1/workspace_members?email=eq.' + encodeURIComponent(userEmail) + '&select=*', { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + (await sb.auth.getSession()).data.session.access_token, 'Content-Type': 'application/json' } });
+        const rows2 = await r2.json();
+        if (!rows2 || rows2.code || !rows2.length) throw new Error('No invite found for ' + userEmail + '. Owner must add this email in Team tab first.');
+        rows.push(...rows2);
       }
+      const inv = rows[0];
+      // Activate using user auth token
+      const sess = (await sb.auth.getSession()).data.session;
+      await fetch(SUPA_URL + '/rest/v1/workspace_members?id=eq.' + inv.id, { method: 'PATCH', headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + sess.access_token, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ user_id: currentUser.id, status: 'active' }) });
+      const r3 = await fetch(SUPA_URL + '/rest/v1/workspaces?id=eq.' + inv.workspace_id + '&select=*', { headers: H });
+      const wsRows = await r3.json();
+      currentWorkspace = (wsRows && !wsRows.code && wsRows.length) ? wsRows[0] : { id: inv.workspace_id, name: 'Workspace', owner_id: null };
       myRole = 'staff'; myMemberId = inv.id;
     }
     await bootApp();
