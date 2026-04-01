@@ -997,8 +997,6 @@ async function submitWorkspace() {
       // Add owner as member
       await dbIns('workspace_members', { workspace_id: currentWorkspace.id, user_id: currentUser.id, email: currentUser.email, name: currentUser.user_metadata?.name || 'Owner', role: 'owner', status: 'active' });
     } else {
-      const token = document.getElementById('ws-token').value.trim().replace(/\s+/g,'');
-      if (!token) { err.textContent = 'Invite token required.'; btn.disabled = false; return; }
       // Lookup using anon key (no auth) to bypass RLS
       // Match by email - staff must sign up with the same email owner invited
       const userEmail = currentUser.email;
