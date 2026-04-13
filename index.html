@@ -267,6 +267,27 @@ select option{background:var(--surface)}
 .role-badge.staff{background:color-mix(in srgb,var(--info) 15%,transparent);color:var(--info)}
 .role-badge.pending{background:color-mix(in srgb,var(--muted) 15%,transparent);color:var(--muted)}
 
+
+/* VAULT */
+.vault-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+.vault-card-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.vault-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.vault-icon.gst{background:color-mix(in srgb,var(--accent) 15%,var(--surf2))}
+.vault-icon.income-tax{background:color-mix(in srgb,var(--success) 15%,var(--surf2))}
+.vault-icon.tds{background:color-mix(in srgb,var(--info) 15%,var(--surf2))}
+.vault-icon.mca{background:color-mix(in srgb,var(--purple) 15%,var(--surf2))}
+.vault-icon.other{background:var(--surf2)}
+.vault-card-title{font-weight:500;font-size:14px}
+.vault-card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.vault-field{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surf2);border-radius:7px;margin-bottom:5px}
+.vault-field-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:64px;flex-shrink:0}
+.vault-field-value{flex:1;font-size:13px;font-family:monospace;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vault-field-value.masked{letter-spacing:.15em;color:var(--muted)}
+.copy-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;white-space:nowrap}
+.copy-btn:hover{background:var(--surf3);color:var(--accent)}
+.master-lock{background:color-mix(in srgb,var(--danger) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--danger) 25%,var(--border));border-radius:12px;padding:24px;text-align:center;margin-bottom:14px}
+.master-lock h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:6px}
+.master-lock p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
 /* TOAST */
 #toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surf3);color:var(--text);padding:8px 18px;border-radius:20px;font-size:12px;border:1px solid var(--border);z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -402,6 +423,26 @@ select option{background:var(--surface)}
       <div id="services-list"></div>
     </div>
 
+    <!-- VAULT (owner only) -->
+    <div class="view" id="view-vault">
+      <div class="page-header"><span class="page-title">🔐 Vault</span>
+        <button class="btn btn-primary btn-sm" id="vault-add-btn" onclick="openVaultModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
+        </button>
+      </div>
+      <div id="vault-lock-screen"></div>
+      <div id="vault-content" style="display:none">
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="vault-search" placeholder="Search by client or portal…" oninput="renderVault()"/>
+        </div>
+        <div class="filter-row" id="vault-cat-filter"></div>
+        <div id="vault-list"></div>
+        <div style="margin-top:14px;padding:10px 12px;background:var(--surf2);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.5">
+          🔒 Passwords encrypted with AES-256 using your master password. Even Supabase cannot read them.
+        </div>
+      </div>
+    </div>
+
     <!-- TEAM (owner only) -->
     <div class="view" id="view-team"><div id="team-content"></div></div>
 
@@ -433,6 +474,9 @@ select option{background:var(--surface)}
     </button>
     <button class="nav-btn owner-only" data-view="services" onclick="switchView('services')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Services
+    </button>
+    <button class="nav-btn owner-only" data-view="vault" onclick="switchView('vault')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Vault
     </button>
     <button class="nav-btn owner-only" data-view="clients" onclick="switchView('clients')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients
@@ -511,6 +555,72 @@ select option{background:var(--surface)}
     </div>
   </div>
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal('task-overlay')">Cancel</button><button class="btn btn-primary" id="task-save-btn" onclick="saveTask()">Save Task</button></div>
+</div>
+</div>
+
+<!-- VAULT MODAL -->
+<div class="overlay" id="vault-overlay" onclick="closeIfBackdrop(event,'vault-overlay')">
+<div class="modal">
+  <div class="modal-header">
+    <span class="modal-title" id="vault-modal-title">New Credential</span>
+    <button class="modal-close" onclick="closeModal('vault-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <input type="hidden" id="vault-id"/>
+  <div class="form-row">
+    <div class="form-group"><label>Label *</label><input id="v-label" placeholder="GST Portal - Acme Corp"/></div>
+    <div class="form-group"><label>Category</label>
+      <select id="v-category">
+        <option value="gst">GST Portal</option>
+        <option value="income-tax">Income Tax</option>
+        <option value="tds">TDS / Traces</option>
+        <option value="mca">MCA / ROC</option>
+        <option value="bank">Bank</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Client</label><select id="v-client"><option value="">— No client —</option></select></div>
+    <div class="form-group"><label>Portal URL</label><input id="v-portal" placeholder="https://gst.gov.in" type="url"/></div>
+  </div>
+  <div class="form-group"><label>Username / ID</label><input id="v-username" placeholder="GSTIN or PAN or login ID" autocomplete="off"/></div>
+  <div class="form-group">
+    <label>Password</label>
+    <div style="position:relative">
+      <input id="v-password" type="password" placeholder="Enter password" autocomplete="new-password" style="padding-right:44px"/>
+      <button type="button" onclick="toggleVaultPwdVis('v-password')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">👁</button>
+    </div>
+  </div>
+  <div class="form-group"><label>Notes</label><textarea id="v-notes" placeholder="Security questions, hints, expiry date…" rows="2"></textarea></div>
+  <div style="background:color-mix(in srgb,var(--warn) 10%,var(--surf2));border:1px solid color-mix(in srgb,var(--warn) 25%,var(--border));border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:4px">
+    🔑 Encrypted with your <strong style="color:var(--text)">master password</strong> set when you first use the vault.
+  </div>
+  <div class="form-actions">
+    <button class="btn btn-ghost" onclick="closeModal('vault-overlay')">Cancel</button>
+    <button class="btn btn-primary" id="vault-save-btn" onclick="saveVaultEntry()">Save</button>
+  </div>
+</div>
+</div>
+
+<!-- MASTER PASSWORD MODAL -->
+<div class="overlay" id="master-overlay">
+<div class="modal">
+  <div class="modal-header">
+    <span class="modal-title" id="master-title">🔐 Master Password</span>
+  </div>
+  <p id="master-desc" style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5"></p>
+  <div class="form-group">
+    <label>Master Password</label>
+    <div style="position:relative">
+      <input id="master-pwd-input" type="password" placeholder="Enter your master password" style="padding-right:44px"/>
+      <button type="button" onclick="toggleVaultPwdVis('master-pwd-input')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">👁</button>
+    </div>
+  </div>
+  <div id="master-error" class="field-error" style="margin-bottom:8px"></div>
+  <div class="form-actions">
+    <button class="btn btn-ghost" onclick="closeModal('master-overlay');currentView='dashboard';switchView('dashboard')">Cancel</button>
+    <button class="btn btn-primary" id="master-btn" onclick="submitMasterPwd()">Unlock</button>
+  </div>
 </div>
 </div>
 
@@ -770,6 +880,27 @@ create policy "tasks_ws" on public.tasks for all
   );
 
 -- Comments: workspace members
+-- Vault (owner-only encrypted credentials)
+create table if not exists public.vault (
+  id uuid default gen_random_uuid() primary key,
+  workspace_id uuid references public.workspaces on delete cascade not null,
+  client_id uuid references public.clients(id) on delete set null,
+  label text not null,
+  portal text,
+  category text default 'gst',
+  username text,
+  password_enc text,
+  notes_enc text,
+  created_by uuid references auth.users on delete set null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table public.vault enable row level security;
+drop policy if exists "vault_owner" on public.vault;
+create policy "vault_owner" on public.vault for all
+  using (workspace_id in (select id from public.workspaces where owner_id = auth.uid()))
+  with check (workspace_id in (select id from public.workspaces where owner_id = auth.uid()));
+
 drop policy if exists "comments_ws" on public.task_comments;
 create policy "comments_ws" on public.task_comments for all
   using (
@@ -820,7 +951,7 @@ let currentWorkspace = null;  // { id, name, owner_id }
 let myRole = 'staff';          // 'owner' or 'staff'
 let myMemberId = null;
 
-let clients = [], tasks = [], comments = [], members = [], services = [];
+let clients = [], tasks = [], comments = [], members = [], services = [], vault = [];
 let currentView = 'dashboard';
 let taskFilter = 'all', activeTagFilter = '';
 let currentTags = [];
@@ -863,12 +994,14 @@ async function loadAll() {
   setSyncState('syncing');
   try {
     const wsId = currentWorkspace.id;
-    [clients, tasks, members, services] = await Promise.all([
+    const [c,t,m,sv,vt] = await Promise.all([
       dbAll('clients', { workspace_id: wsId }),
       dbAll('tasks', { workspace_id: wsId }),
       dbAll('workspace_members', { workspace_id: wsId }),
-      dbAll('services', { workspace_id: wsId })
+      dbAll('services', { workspace_id: wsId }),
+      isOwner() ? dbAll('vault', { workspace_id: wsId }) : Promise.resolve([])
     ]);
+    clients=c; tasks=t; members=m; services=sv; vault=vt;
     setSyncState('live');
   } catch (e) {
     setSyncState('offline');
@@ -892,6 +1025,7 @@ function startRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'clients', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'workspace_members', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'services', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'vault', filter: `workspace_id=eq.${currentWorkspace.id}` }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'task_comments', filter: `workspace_id=eq.${currentWorkspace.id}` }, () => {
       if (detailTaskId) loadComments(detailTaskId).then(renderComments);
     })
@@ -1085,7 +1219,7 @@ function applyRoleUI() {
   document.getElementById('owner-billing-fields').style.display = isOwner() ? 'block' : 'none';
   // Clients nav only for owner
   if (!isOwner()) {
-    if (['clients','team','reports','services'].includes(currentView)) currentView = 'tasks';
+    if (['clients','team','reports','services','vault'].includes(currentView)) currentView = 'tasks';
   }
 }
 
@@ -1115,7 +1249,7 @@ async function init() {
 // ════════════════════════════════════════════════════════════════
 function switchView(v) {
   // Staff can't access owner-only views
-  if (!isOwner() && ['clients','team','reports','services'].includes(v)) return;
+  if (!isOwner() && ['clients','team','reports','services','vault'].includes(v)) return;
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
@@ -1129,6 +1263,7 @@ function renderCurrentView() {
   else if (currentView === 'tasks') renderTasks();
   else if (currentView === 'calendar') renderCalendar();
   else if (currentView === 'services') renderServices();
+  else if (currentView === 'vault') renderVault();
   else if (currentView === 'team') renderTeam();
   else if (currentView === 'reports') renderReports();
 }
@@ -1208,6 +1343,235 @@ function handleTagInput(e){if(e.target.value.endsWith(',')){const v=e.target.val
 // ════════════════════════════════════════════════════════════════
 
 // ════════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════════
+// VAULT — AES-256 encrypted credential store (owner only)
+// ════════════════════════════════════════════════════════════════
+
+let masterKey = null;          // CryptoKey — held in memory only, never stored
+let vaultUnlocked = false;
+let masterPwdCallback = null;  // function to call after master pwd entered
+
+// ── AES-GCM encrypt/decrypt using Web Crypto API ──
+async function deriveMasterKey(password) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: enc.encode('taskflow-vault-salt-v1'), iterations: 100000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encryptText(text, key) {
+  if (!text) return '';
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
+  const combined = new Uint8Array(iv.length + cipher.byteLength);
+  combined.set(iv); combined.set(new Uint8Array(cipher), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptText(b64, key) {
+  if (!b64) return '';
+  try {
+    const combined = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const iv = combined.slice(0, 12);
+    const data = combined.slice(12);
+    const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+    return new TextDecoder().decode(dec);
+  } catch (e) { return '[decryption failed]'; }
+}
+
+// ── Master password gate ──
+function requireMasterPwd(isFirst, callback) {
+  masterPwdCallback = callback;
+  document.getElementById('master-title').textContent = isFirst ? '🔐 Set Master Password' : '🔐 Unlock Vault';
+  document.getElementById('master-desc').textContent = isFirst
+    ? 'Create a master password to encrypt your credentials. Remember it — if you forget it, passwords cannot be recovered.'
+    : 'Enter your master password to view and manage credentials.';
+  document.getElementById('master-btn').textContent = isFirst ? 'Set & Unlock' : 'Unlock';
+  document.getElementById('master-pwd-input').value = '';
+  document.getElementById('master-error').textContent = '';
+  openModal('master-overlay');
+  setTimeout(() => document.getElementById('master-pwd-input')?.focus(), 300);
+}
+
+async function submitMasterPwd() {
+  const pwd = document.getElementById('master-pwd-input').value;
+  if (!pwd || pwd.length < 4) { document.getElementById('master-error').textContent = 'Minimum 4 characters.'; return; }
+  const btn = document.getElementById('master-btn'); btn.disabled = true; btn.textContent = '…';
+  masterKey = await deriveMasterKey(pwd);
+  vaultUnlocked = true;
+  closeModal('master-overlay');
+  if (masterPwdCallback) { masterPwdCallback(); masterPwdCallback = null; }
+  btn.disabled = false;
+}
+
+const VAULT_ICONS = { gst: '🧾', 'income-tax': '📋', tds: '📊', mca: '🏢', bank: '🏦', other: '🔑' };
+const VAULT_LABELS = { gst: 'GST Portal', 'income-tax': 'Income Tax', tds: 'TDS / Traces', mca: 'MCA / ROC', bank: 'Bank', other: 'Other' };
+
+// ── Open vault (require unlock first) ──
+function renderVault() {
+  if (!vaultUnlocked) {
+    const isFirst = vault.length === 0 && !localStorage.getItem('tf_vault_set');
+    document.getElementById('vault-lock-screen').innerHTML = `
+      <div class="master-lock">
+        <div style="font-size:2.5rem;margin-bottom:10px">🔐</div>
+        <h3>Password Vault</h3>
+        <p>${isFirst ? 'Set a master password to start storing credentials securely.' : 'Vault is locked. Enter your master password to access credentials.'}</p>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="requireMasterPwd(${isFirst},()=>{localStorage.setItem('tf_vault_set','1');renderVault();})">
+          ${isFirst ? 'Set Master Password' : 'Unlock Vault'}
+        </button>
+        <div style="font-size:11px;color:var(--muted);margin-top:10px">🔒 AES-256 encrypted · Zero-knowledge · Never stored unencrypted</div>
+      </div>`;
+    document.getElementById('vault-lock-screen').style.display = 'block';
+    document.getElementById('vault-content').style.display = 'none';
+    document.getElementById('vault-add-btn').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('vault-lock-screen').style.display = 'none';
+  document.getElementById('vault-content').style.display = 'block';
+  document.getElementById('vault-add-btn').style.display = 'inline-flex';
+
+  const q = (document.getElementById('vault-search')?.value || '').toLowerCase();
+  const activeCat = window._vaultCat || 'All';
+  const cats = [...new Set(vault.map(v => v.category).filter(Boolean))].sort();
+  const catEl = document.getElementById('vault-cat-filter');
+  if (catEl) catEl.innerHTML = ['All', ...cats].map(c =>
+    `<button class="filter-chip${activeCat===c?' active':''}" onclick="window._vaultCat='${c}';renderVault()">${c==='All'?'All':VAULT_LABELS[c]||c}</button>`
+  ).join('');
+
+  let list = vault;
+  if (activeCat !== 'All') list = list.filter(v => v.category === activeCat);
+
+  const cm = cmap();
+  const el = document.getElementById('vault-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><p>No credentials yet.<br/>Tap + Add to store your first.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(v => {
+    const cl = cm[v.client_id];
+    return `<div class="vault-card">
+      <div class="vault-card-header">
+        <div class="vault-icon ${v.category||'other'}">${VAULT_ICONS[v.category]||'🔑'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="vault-card-title">${v.label}</div>
+          <div class="vault-card-sub">${VAULT_LABELS[v.category]||v.category}${cl?' · '+cl.name:''}</div>
+        </div>
+        <div style="display:flex;gap:4px">
+          ${v.portal?`<button class="icon-btn" onclick="window.open('${v.portal}','_blank')" title="Open portal" style="color:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>`:''}
+          <button class="icon-btn edit" onclick="openVaultModal('${v.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="icon-btn del" onclick="deleteVaultEntry('${v.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+        </div>
+      </div>
+      ${v.username?`<div class="vault-field"><span class="vault-field-label">Username</span><span class="vault-field-value" id="usr-${v.id}">${v.username}</span><button class="copy-btn" onclick="copyField('${v.id}','usr')">Copy</button></div>`:''}
+      <div class="vault-field">
+        <span class="vault-field-label">Password</span>
+        <span class="vault-field-value masked" id="pwd-${v.id}">••••••••</span>
+        <button class="copy-btn" onclick="revealPassword('${v.id}','${v.password_enc}')">Reveal</button>
+        <button class="copy-btn" onclick="copyPassword('${v.id}','${v.password_enc}')">Copy</button>
+      </div>
+      ${v.notes_enc?`<button class="copy-btn" style="margin-top:4px;color:var(--muted)" onclick="revealNotes('${v.id}','${v.notes_enc}')">📝 Show notes</button>
+      <div id="notes-${v.id}" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;padding:8px;background:var(--surf2);border-radius:6px"></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function revealPassword(id, enc) {
+  const el = document.getElementById('pwd-' + id);
+  if (!el) return;
+  if (el.textContent !== '••••••••') { el.textContent = '••••••••'; el.classList.add('masked'); return; }
+  const plain = await decryptText(enc, masterKey);
+  el.textContent = plain; el.classList.remove('masked');
+  setTimeout(() => { if(el) { el.textContent='••••••••'; el.classList.add('masked'); } }, 15000);
+}
+async function copyPassword(id, enc) {
+  const plain = await decryptText(enc, masterKey);
+  await navigator.clipboard.writeText(plain);
+  showToast('✓ Password copied — clears in 30s');
+  setTimeout(() => navigator.clipboard.writeText('').catch(()=>{}), 30000);
+}
+async function revealNotes(id, enc) {
+  const el = document.getElementById('notes-' + id);
+  if (!el) return;
+  if (el.style.display !== 'none') { el.style.display = 'none'; return; }
+  el.textContent = await decryptText(enc, masterKey);
+  el.style.display = 'block';
+}
+function copyField(id, type) {
+  const el = document.getElementById(type + '-' + id);
+  if (el) navigator.clipboard.writeText(el.textContent).then(() => showToast('✓ Copied'));
+}
+function toggleVaultPwdVis(elId) {
+  const el = document.getElementById(elId);
+  if (el) el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ── Vault CRUD ──
+async function openVaultModal(id = null) {
+  if (!vaultUnlocked) { requireMasterPwd(false, () => openVaultModal(id)); return; }
+  document.getElementById('vault-id').value = id || '';
+  document.getElementById('vault-modal-title').textContent = id ? 'Edit Credential' : 'New Credential';
+  ['v-label','v-portal','v-username','v-password','v-notes'].forEach(f => document.getElementById(f).value = '');
+  document.getElementById('v-category').value = 'gst';
+  const sel = document.getElementById('v-client');
+  sel.innerHTML = '<option value="">— No client —</option>' + clients.map(c => `<option value="${c.id}">${c.name}${c.company?' ('+c.company+')':''}</option>`).join('');
+  if (id) {
+    const v = vault.find(x => x.id === id);
+    if (v) {
+      document.getElementById('v-label').value = v.label || '';
+      document.getElementById('v-portal').value = v.portal || '';
+      document.getElementById('v-username').value = v.username || '';
+      document.getElementById('v-category').value = v.category || 'gst';
+      document.getElementById('v-client').value = v.client_id || '';
+      if (v.password_enc) document.getElementById('v-password').value = await decryptText(v.password_enc, masterKey);
+      if (v.notes_enc) document.getElementById('v-notes').value = await decryptText(v.notes_enc, masterKey);
+    }
+  }
+  openModal('vault-overlay');
+}
+
+async function saveVaultEntry() {
+  const label = document.getElementById('v-label').value.trim();
+  if (!label) { showToast('⚠ Label required'); return; }
+  const id = document.getElementById('vault-id').value;
+  const btn = document.getElementById('vault-save-btn'); btn.disabled = true;
+  const pwd = document.getElementById('v-password').value;
+  const notes = document.getElementById('v-notes').value.trim();
+  const row = {
+    label,
+    category: document.getElementById('v-category').value,
+    portal: document.getElementById('v-portal').value.trim() || null,
+    username: document.getElementById('v-username').value.trim() || null,
+    client_id: document.getElementById('v-client').value || null,
+    password_enc: pwd ? await encryptText(pwd, masterKey) : (id ? vault.find(x=>x.id===id)?.password_enc : ''),
+    notes_enc: notes ? await encryptText(notes, masterKey) : '',
+    updated_at: new Date().toISOString()
+  };
+  try {
+    if (id) { await dbUpd('vault', id, row); showToast('✓ Updated'); }
+    else { row.workspace_id = currentWorkspace.id; row.created_by = currentUser.id; await dbIns('vault', row); showToast('✓ Saved'); }
+    closeModal('vault-overlay');
+    await loadAll();
+  } catch(e) { showToast('⚠ ' + e.message); }
+  btn.disabled = false;
+}
+
+function deleteVaultEntry(id) {
+  const v = vault.find(x => x.id === id);
+  confirm2('Delete Credential', `Delete "${v?.label}"? This cannot be undone.`, 'Delete', 'btn-danger', async () => {
+    await dbDel('vault', id).catch(e => showToast('⚠ ' + e.message));
+    closeModal('confirm-overlay'); showToast('Credential deleted'); await loadAll();
+  });
+}
+
 // SERVICES CRUD (owner only)
 // ════════════════════════════════════════════════════════════════
 
