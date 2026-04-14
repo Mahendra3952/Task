@@ -458,12 +458,65 @@ select option{background:var(--surface)}
       <div class="section-label">Tasks by Priority</div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px" id="priority-bars"></div>
       <div class="divider"></div>
-      <div class="section-label">Data</div>
-      <div class="export-grid">
-        <div class="export-card" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Export CSV</p><span>All tasks</span></div>
-        <div class="export-card" onclick="exportJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>Export JSON</p><span>Full backup</span></div>
+      <div class="section-label">Export Data</div>
+      <div class="export-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="export-card" onclick="exportCSV('tasks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <p>Tasks CSV</p><span>Excel-ready</span>
+        </div>
+        <div class="export-card" onclick="exportCSV('clients')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <p>Clients CSV</p><span>Excel-ready</span>
+        </div>
+        <div class="export-card" onclick="exportCSV('services')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+          <p>Services CSV</p><span>Excel-ready</span>
+        </div>
       </div>
-      <div style="padding-bottom:10px"></div>
+      <div class="export-grid" style="grid-template-columns:1fr 1fr">
+        <div class="export-card" onclick="exportFullJSON()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>Full Backup JSON</p><span>All data — clients, tasks, services</span>
+        </div>
+        <div class="export-card" onclick="exportCSV('billing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          <p>Billing CSV</p><span>Amount, status per task</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label">Import Data</div>
+      <div style="background:color-mix(in srgb,var(--info) 8%,var(--surf2));border:1px solid color-mix(in srgb,var(--info) 20%,var(--border));border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.7">
+        📋 <strong style="color:var(--text)">Import from Excel / CSV</strong> — Download the template first, fill it in Excel, then upload.<br/>
+        📦 <strong style="color:var(--text)">Restore from JSON backup</strong> — Upload a previously exported full backup file.
+      </div>
+      <div class="export-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:10px">
+        <div class="export-card" onclick="downloadTemplate('clients')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--success)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <p>Clients Template</p><span>Download CSV</span>
+        </div>
+        <div class="export-card" onclick="downloadTemplate('tasks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--success)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <p>Tasks Template</p><span>Download CSV</span>
+        </div>
+        <div class="export-card" onclick="downloadTemplate('services')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--success)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <p>Services Template</p><span>Download CSV</span>
+        </div>
+      </div>
+      <div class="export-grid" style="grid-template-columns:1fr 1fr">
+        <div class="export-card" onclick="document.getElementById('import-csv-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--accent)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <p>Import CSV</p><span>Clients or Tasks</span>
+        </div>
+        <div class="export-card" onclick="document.getElementById('import-json-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--purple)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <p>Restore JSON</p><span>Full backup restore</span>
+        </div>
+      </div>
+      <input type="file" id="import-csv-file" accept=".csv,.txt" style="display:none" onchange="importCSV(this)"/>
+      <input type="file" id="import-json-file" accept=".json" style="display:none" onchange="importJSON(this)"/>
+      <div style="padding-bottom:14px"></div>
     </div>
   </div>
 
@@ -2422,14 +2475,186 @@ function renderReports(){
 // EXPORT
 // ════════════════════════════════════════════════════════════════
 function dl(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href);}
-function exportCSV(){
-  const cm=cmap();
-  const rows=[['ID','Title','Status','Approval','Priority','Assignee','Tags','Client','Due Date','Hours','Billing Amount','Billing Status','Created']];
-  tasks.forEach(t=>rows.push([t.id,t.title,t.status,t.approval_status||'',t.priority,t.assignee_name||'',(t.tags||[]).join(';'),cm[t.client_id]?.name||'',t.due_date||'',t.hours||0,t.billing_amount||0,t.billing_status||'unbilled',t.created_at||'']));
-  dl(rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),`taskflow-${toDay()}.csv`,'text/csv');
-  showToast('✓ CSV exported');
+// ── CSV helper ──
+function toCSV(rows){ return rows.map(r=>r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\n'); }
+
+// ── Export CSV by type ──
+function exportCSV(type='tasks'){
+  const cm = cmap();
+  let rows, fname;
+  if (type==='tasks' || type==='billing') {
+    const heads = type==='billing'
+      ? ['Client','Task','Status','Hours','Billing Amount','Billing Status','Due Date']
+      : ['ID','Title','Description','Status','Priority','Assignee','Tags','Client','Service','Service Period','Due Date','Scheduled Date','Hours','Billing Amount','Billing Status','Created At'];
+    rows = [heads];
+    tasks.forEach(t => {
+      const cl = cm[t.client_id]?.name||'';
+      const svc = services.find(s=>s.id===t.service_id)?.name||'';
+      if (type==='billing') {
+        rows.push([cl,t.title,t.status,t.hours||0,t.billing_amount||0,t.billing_status||'unbilled',t.due_date||'']);
+      } else {
+        rows.push([t.id,t.title,t.description||'',t.status,t.priority,t.assignee_name||'',(t.tags||[]).join(';'),cl,svc,t.service_period||'',t.due_date||'',t.scheduled_date||'',t.hours||0,t.billing_amount||0,t.billing_status||'unbilled',t.created_at||'']);
+      }
+    });
+    fname = type==='billing' ? `billing-${toDay()}.csv` : `tasks-${toDay()}.csv`;
+  } else if (type==='clients') {
+    rows = [['ID','Name','Company','Email','Phone','Rate','Currency','Notes','Created At']];
+    clients.forEach(c=>rows.push([c.id,c.name,c.company||'',c.email||'',c.phone||'',c.rate||0,c.currency||'INR',c.notes||'',c.created_at||'']));
+    fname = `clients-${toDay()}.csv`;
+  } else if (type==='services') {
+    rows = [['ID','Name','Category','Type','Steps (semicolon separated)','Documents (semicolon separated)','Created At']];
+    services.forEach(s=>rows.push([s.id,s.name,s.category||'',s.service_type||'adhoc',(s.sub_services||[]).map(x=>x.title).join(';'),(s.document_checklist||[]).map(x=>x.title).join(';'),s.created_at||'']));
+    fname = `services-${toDay()}.csv`;
+  }
+  dl(toCSV(rows), fname, 'text/csv');
+  showToast('✓ Exported: ' + fname);
 }
-function exportJSON(){dl(JSON.stringify({clients,tasks,members,exported_at:new Date().toISOString()},null,2),`taskflow-backup-${toDay()}.json`,'application/json');showToast('✓ JSON exported');}
+
+// ── Full JSON backup (all tables) ──
+function exportFullJSON(){
+  const backup = { version:2, exported_at:new Date().toISOString(), workspace: { id:currentWorkspace?.id, name:currentWorkspace?.name }, clients, tasks, services, members };
+  dl(JSON.stringify(backup,null,2), `taskflow-full-backup-${toDay()}.json`, 'application/json');
+  showToast('✓ Full backup exported');
+}
+// Keep old name working
+function exportJSON(){ exportFullJSON(); }
+
+// ── Download blank template ──
+function downloadTemplate(type){
+  let rows;
+  if (type==='clients') {
+    rows = [
+      ['Name *','Company','Email','Phone','Rate (per hr)','Currency','Notes'],
+      ['Rahul Sharma','Sharma Enterprises','rahul@sharma.com','+91 98765 43210','1500','INR','Key client - GST monthly'],
+      ['Priya Mehta','Mehta & Co','priya@mehta.com','+91 98765 00000','2000','INR','']
+    ];
+  } else if (type==='tasks') {
+    rows = [
+      ['Title *','Description','Client Name','Service Name','Status','Priority','Due Date (YYYY-MM-DD)','Hours','Billing Amount','Billing Status','Assignee Name'],
+      ['GST Filing Apr 2025','Monthly GST return','Sharma Enterprises','GST Filing','todo','high','2025-04-20','2','2000','unbilled',''],
+      ['ITR Filing FY24-25','Income tax return','Mehta & Co','ITR Filing','in-progress','medium','2025-07-31','4','5000','unbilled','']
+    ];
+  } else if (type==='services') {
+    rows = [
+      ['Name *','Category','Type (adhoc/recurring)','Steps (semicolon separated)','Documents (semicolon separated)'],
+      ['GST Monthly Filing','Tax','recurring','Collect invoices;Reconcile GSTR-2B;Prepare GSTR-3B;File return;Share acknowledgement','Sales invoices;Purchase invoices;Bank statement'],
+      ['ITR Filing','Tax','adhoc','Collect documents;Compute income;Prepare return;Review with client;File ITR','Form 16;Bank statements;Investment proofs;Rental income docs']
+    ];
+  }
+  dl(toCSV(rows), `${type}-template.csv`, 'text/csv');
+  showToast('✓ Template downloaded — fill it and import');
+}
+
+// ── Import CSV ──
+async function importCSV(input){
+  const file = input.files[0]; if(!file) return;
+  const text = await file.text();
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) { showToast('⚠ File is empty or has only headers'); input.value=''; return; }
+  const headers = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  const parseRow = (line) => {
+    const res=[]; let cur='',inQ=false;
+    for(const ch of line){ if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){res.push(cur.trim());cur='';}else{cur+=ch;} }
+    res.push(cur.trim()); return res;
+  };
+  const rows = lines.slice(1).map(parseRow).filter(r=>r.some(c=>c));
+
+  // Detect type by headers
+  const isClients = headers.includes('name *') || (headers.includes('name') && headers.includes('company'));
+  const isServices = headers.includes('steps (semicolon separated)') || headers.includes('type (adhoc/recurring)');
+  const isTasks = headers.includes('title *') || headers.includes('title');
+
+  const get = (row, ...names) => { for(const n of names){ const i=headers.findIndex(h=>h===n||h===n+' *');if(i>=0)return row[i]?.replace(/^"|"$/g,'')||''; } return ''; };
+
+  if (!isClients && !isTasks && !isServices) {
+    showToast('⚠ Cannot detect type. Use the template.'); input.value=''; return;
+  }
+
+  const typeName = isClients?'clients':isServices?'services':'tasks';
+  confirm2(`Import ${typeName}?`,
+    `Found ${rows.length} rows to import as ${typeName}. Existing data is kept — duplicates may be created.`,
+    `Import ${rows.length} rows`, 'btn-primary',
+    async () => {
+      closeModal('confirm-overlay');
+      setSyncState('syncing');
+      let ok=0, fail=0;
+      if (isClients) {
+        for(const r of rows){
+          const name=get(r,'name *','name'); if(!name){fail++;continue;}
+          try{
+            await dbIns('clients',{workspace_id:currentWorkspace.id,name,company:get(r,'company')||null,email:get(r,'email')||null,phone:get(r,'phone')||null,rate:parseFloat(get(r,'rate (per hr)','rate'))||0,currency:get(r,'currency')||'INR',notes:get(r,'notes')||null});
+            ok++;
+          }catch(e){fail++;}
+        }
+      } else if (isServices) {
+        for(const r of rows){
+          const name=get(r,'name *','name'); if(!name){fail++;continue;}
+          const steps=(get(r,'steps (semicolon separated)','steps')||'').split(';').filter(Boolean).map((t,i)=>({id:String(i+1),title:t.trim()}));
+          const docs=(get(r,'documents (semicolon separated)','documents')||'').split(';').filter(Boolean).map((t,i)=>({id:String(i+1),title:t.trim()}));
+          try{
+            await dbIns('services',{workspace_id:currentWorkspace.id,name,category:get(r,'category')||null,service_type:get(r,'type (adhoc/recurring)','type')||'adhoc',sub_services:steps,document_checklist:docs});
+            ok++;
+          }catch(e){fail++;}
+        }
+      } else {
+        // Tasks — try to match client name and service name
+        await loadAll();
+        const cByName = Object.fromEntries(clients.map(c=>[c.name.toLowerCase(),c.id]));
+        const sByName = Object.fromEntries(services.map(s=>[s.name.toLowerCase(),s.id]));
+        for(const r of rows){
+          const title=get(r,'title *','title'); if(!title){fail++;continue;}
+          const clientName=(get(r,'client name','client')||'').toLowerCase();
+          const svcName=(get(r,'service name','service')||'').toLowerCase();
+          const dueRaw=get(r,'due date (yyyy-mm-dd)','due date','due_date');
+          const due=dueRaw&&/^\d{4}-\d{2}-\d{2}$/.test(dueRaw)?dueRaw:null;
+          try{
+            await dbIns('tasks',{
+              workspace_id:currentWorkspace.id, created_by:currentUser.id,
+              title,
+              description:get(r,'description')||null,
+              client_id:cByName[clientName]||null,
+              service_id:sByName[svcName]||null,
+              status:get(r,'status')||'todo',
+              priority:get(r,'priority')||'medium',
+              due_date:due,
+              hours:parseFloat(get(r,'hours'))||0,
+              billing_amount:parseFloat(get(r,'billing amount','billing_amount'))||0,
+              billing_status:get(r,'billing status','billing_status')||'unbilled',
+              assignee_name:get(r,'assignee name','assignee')||null,
+              tags:[]
+            });
+            ok++;
+          }catch(e){fail++;}
+        }
+      }
+      await loadAll();
+      showToast(`✓ Imported ${ok} ${typeName}${fail?' · '+fail+' failed':''}`);
+    }
+  );
+  input.value='';
+}
+
+// ── Import JSON (full backup restore) ──
+async function importJSON(input){
+  const file=input.files[0]; if(!file) return;
+  let data;
+  try{ data=JSON.parse(await file.text()); }
+  catch(e){ showToast('⚠ Invalid JSON file'); input.value=''; return; }
+  const ic=data.clients||[], it=data.tasks||[], is=data.services||[];
+  confirm2('Restore Backup',
+    `Import ${ic.length} clients, ${it.length} tasks, ${is.length} services? Existing data is kept.`,
+    'Restore','btn-primary',
+    async()=>{
+      closeModal('confirm-overlay'); setSyncState('syncing');
+      for(const c of ic){const{id,...r}=c;r.workspace_id=currentWorkspace.id;await dbIns('clients',r).catch(()=>{});}
+      for(const s of is){const{id,...r}=s;r.workspace_id=currentWorkspace.id;await dbIns('services',r).catch(()=>{});}
+      for(const t of it){const{id,...r}=t;r.workspace_id=currentWorkspace.id;r.created_by=currentUser.id;await dbIns('tasks',r).catch(()=>{});}
+      showToast(`✓ Restored ${ic.length} clients · ${it.length} tasks · ${is.length} services`);
+      await loadAll();
+    }
+  );
+  input.value='';
+}
 
 // ════════════════════════════════════════════════════════════════
 // THEME + SQL
