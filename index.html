@@ -774,6 +774,21 @@ select option{background:var(--surface)}
 </div>
 </div>
 
+<!-- IMPORT PREVIEW MODAL -->
+<div class="overlay" id="import-preview-overlay">
+<div class="modal">
+  <div class="modal-header">
+    <span class="modal-title">Import Preview</span>
+    <button class="modal-close" onclick="closeModal('import-preview-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div id="import-preview-body"></div>
+  <div class="form-actions" style="margin-top:14px">
+    <button class="btn btn-ghost" onclick="closeModal('import-preview-overlay')">Cancel</button>
+    <button class="btn btn-primary" id="import-preview-confirm">Confirm Import</button>
+  </div>
+</div>
+</div>
+
 <!-- CONFIRM MODAL -->
 <div class="overlay" id="confirm-overlay" onclick="closeIfBackdrop(event,'confirm-overlay')">
 <div class="modal">
@@ -873,6 +888,7 @@ create table if not exists public.tasks (
   approval_status text default null,
   rejection_reason text default null,
   due_date date, scheduled_date date,
+  archived boolean default false,
   completed_at timestamptz,
   created_at timestamptz default now(), updated_at timestamptz default now()
 );
@@ -971,6 +987,9 @@ create policy "comments_ws" on public.task_comments for all
 -- alter table public.tasks add column if not exists service_period text;
 -- alter table public.tasks add column if not exists sub_services jsonb default '[]';
 -- alter table public.tasks add column if not exists document_checklist jsonb default '[]';
+-- alter table public.clients add column if not exists archived boolean default false;
+-- alter table public.services add column if not exists archived boolean default false;
+-- alter table public.tasks add column if not exists archived boolean default false;
 
 -- Services RLS
 drop policy if exists "services_ws" on public.services;
@@ -1718,12 +1737,18 @@ async function saveService() {
 
 function deleteService(id) {
   const s = services.find(x => x.id === id);
-  confirm2('Delete Service', `Delete "${s?.name}"? Tasks linked to it will keep their data.`, 'Delete', 'btn-danger', async () => {
-    await dbDel('services', id).catch(e => showToast('⚠ ' + e.message));
-    closeModal('confirm-overlay');
-    showToast('Service deleted');
-    await loadAll();
-  });
+  const isArch = s?.archived;
+  confirm2(
+    isArch ? 'Restore Service' : 'Archive Service',
+    isArch ? `Restore "${s?.name}" back to active?` : `Archive "${s?.name}"? It will be hidden but can be restored from the Archived filter.`,
+    isArch ? 'Restore' : 'Archive', isArch ? 'btn-success' : 'btn-ghost',
+    async () => {
+      await dbUpd('services', id, { archived: !isArch, updated_at: new Date().toISOString() });
+      closeModal('confirm-overlay');
+      showToast(isArch ? '✓ Service restored' : '✓ Service archived');
+      await loadAll();
+    }
+  );
 }
 
 function renderServices() {
@@ -1735,7 +1760,8 @@ function renderServices() {
     catEl.innerHTML = ['All', ...cats].map(c => `<button class="filter-chip${(window._svcCat||'All')===c?' active':''}" onclick="window._svcCat='${c}';renderServices()">${c}</button>`).join('');
   }
   const activeCat = window._svcCat || 'All';
-  let list = services;
+  const showArchSvc = window._svcShowArch||false;
+  let list = showArchSvc ? services : services.filter(s=>!s.archived);
   if (q) list = list.filter(s => s.name.toLowerCase().includes(q) || (s.category||'').toLowerCase().includes(q));
   if (activeCat !== 'All') list = list.filter(s => s.category === activeCat);
 
@@ -1797,10 +1823,16 @@ async function saveClient(){
 }
 function deleteClient(id){
   const c=clients.find(x=>x.id===id);
-  confirm2('Delete Client',`Delete "${c?.name}"?`,'Delete','btn-danger',async()=>{
-    await dbDel('clients',id).catch(e=>showToast('⚠ '+e.message));
-    closeModal('confirm-overlay');showToast('Client deleted');await loadAll();
-  });
+  const isArch=c?.archived;
+  confirm2(
+    isArch?'Restore Client':'Archive Client',
+    isArch?`Restore "${c?.name}" to active?`:`Archive "${c?.name}"? Hidden but recoverable from Archived filter.`,
+    isArch?'Restore':'Archive', isArch?'btn-success':'btn-ghost',
+    async()=>{
+      await dbUpd('clients',id,{archived:!isArch,updated_at:new Date().toISOString()});
+      closeModal('confirm-overlay');showToast(isArch?'✓ Client restored':'✓ Client archived');await loadAll();
+    }
+  );
 }
 function openInvoiceModal(clientId){
   const c=clients.find(x=>x.id===clientId);if(!c)return;
@@ -1819,8 +1851,12 @@ function renderClients(){
   const q=(document.getElementById('client-search')?.value||'').toLowerCase();
   const list=q?clients.filter(c=>c.name.toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q)):clients;
   const el=document.getElementById('clients-list');if(!el)return;
-  if(!list.length){el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>${q?'No match.':'No clients yet.'}</p></div>`;return;}
-  el.innerHTML=list.map(c=>`<div class="card">
+  const archCount = clients.filter(c=>c.archived).length;
+  if(!list.length){
+    el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>${q?'No match.':'No active clients.'}</p></div>${archCount&&!showArch?`<div style="text-align:center;margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="window._clientShowArch=true;renderClients()">Show ${archCount} archived</button></div>`:''}`;return;
+  }
+  const archBanner = archCount && !showArch ? `<div style="text-align:center;padding:10px 0"><button class="btn btn-ghost btn-sm" onclick="window._clientShowArch=true;renderClients()">📦 Show ${archCount} archived client${archCount>1?'s':''}</button></div>` : showArch ? `<div style="text-align:center;padding:6px 0"><button class="btn btn-ghost btn-sm" onclick="window._clientShowArch=false;renderClients()">Hide archived</button></div>` : '';
+  el.innerHTML=list.map(c=>`<div class="card" style="${c.archived?'opacity:.55;filter:grayscale(.4)':''}">
     <div class="avatar">${ini(c.name)}</div>
     <div class="card-body">
       <div class="card-title">${c.name}</div>
@@ -2011,10 +2047,16 @@ async function saveTask(){
 
 async function deleteTask(id){
   const t=tasks.find(x=>x.id===id);
-  confirm2('Delete Task',`Delete "${t?.title}"?`,'Delete','btn-danger',async()=>{
-    await dbDel('tasks',id).catch(e=>showToast('⚠ '+e.message));
-    closeModal('confirm-overlay');showToast('Task deleted');await loadAll();
-  });
+  const isArch=t?.archived;
+  confirm2(
+    isArch?'Restore Task':'Archive Task',
+    isArch?`Restore "${t?.title}" to active?`:`Archive "${t?.title}"? Hidden but recoverable.`,
+    isArch?'Restore':'Archive', isArch?'btn-success':'btn-ghost',
+    async()=>{
+      await dbUpd('tasks',id,{archived:!isArch,updated_at:new Date().toISOString()});
+      closeModal('confirm-overlay');showToast(isArch?'✓ Task restored':'✓ Task archived');await loadAll();
+    }
+  );
 }
 
 // Staff: submit for approval
@@ -2164,8 +2206,8 @@ function setTagFilter(tag){activeTagFilter=activeTagFilter===tag?'':tag;renderTa
 function buildFilterRow(){
   const el=document.getElementById('task-filter-row');if(!el)return;
   const filters=isOwner()
-    ?[['all','All'],['todo','To-Do'],['in-progress','In Progress'],['pending_approval','⏳ Approval'],['done','Done'],['overdue','Overdue'],['unbilled','Unbilled'],['billed','Billed'],['collected','Collected']]
-    :[['all','All'],['mine','Mine'],['todo','To-Do'],['in-progress','In Progress'],['pending_approval','⏳ My Pending'],['rejected','Rejected'],['done','Done']];
+    ?[['all','All'],['todo','To-Do'],['in-progress','In Progress'],['pending_approval','⏳ Approval'],['done','Done'],['overdue','Overdue'],['unbilled','Unbilled'],['billed','Billed'],['collected','Collected'],['archived','📦 Archived']]
+    :[['all','All'],['mine','Mine'],['todo','To-Do'],['in-progress','In Progress'],['pending_approval','⏳ My Pending'],['rejected','Rejected'],['done','Done'],['archived','📦 Archived']];
   el.innerHTML=filters.map(([f,label])=>`<button class="filter-chip${f==='all'?' active':''}" onclick="setFilter(this,'${f}')">${label}</button>`).join('');
 }
 
@@ -2176,6 +2218,8 @@ function renderTasks(){
   const tr=document.getElementById('tag-filter-row');
   if(tr)tr.innerHTML=allTags.map(tag=>`<button class="filter-chip${activeTagFilter===tag?' active':''}" onclick="setTagFilter('${tag}')">${tag}</button>`).join('');
   let filtered=[...tasks];
+  if(taskFilter==='archived') filtered=filtered.filter(t=>t.archived);
+  else filtered=filtered.filter(t=>!t.archived); // hide archived by default
   if(taskFilter==='overdue')filtered=filtered.filter(t=>isOvd(t));
   else if(taskFilter==='mine')filtered=filtered.filter(t=>t.assignee_id===currentUser.id||t.created_by===currentUser.id);
   else if(taskFilter==='pending_approval')filtered=filtered.filter(t=>t.approval_status==='pending'&&(isOwner()||t.assignee_id===currentUser.id||t.created_by===currentUser.id));
@@ -2476,184 +2520,360 @@ function renderReports(){
 // ════════════════════════════════════════════════════════════════
 function dl(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href);}
 // ── CSV helper ──
-function toCSV(rows){ return rows.map(r=>r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\n'); }
+// ════════════════════════════════════════════════════════════════
+// IMPORT / EXPORT — Professional grade upsert, validation, archive
+// ════════════════════════════════════════════════════════════════
 
-// ── Export CSV by type ──
-function exportCSV(type='tasks'){
+// ── CSV serialiser ──
+function toCSV(rows) {
+  return rows.map(r =>
+    r.map(c => `"${String(c == null ? '' : c).replace(/"/g, '""')}"`)
+    .join(',')
+  ).join('\n');
+}
+
+// ── Robust CSV parser (handles quoted commas, newlines) ──
+function parseCSV(text) {
+  const rows = [];
+  let cur = [], cell = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], nx = text[i+1];
+    if (inQ) {
+      if (ch === '"' && nx === '"') { cell += '"'; i++; }
+      else if (ch === '"') inQ = false;
+      else cell += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { cur.push(cell.trim()); cell = ''; }
+      else if (ch === '\n' || (ch === '\r' && nx === '\n')) {
+        cur.push(cell.trim()); cell = '';
+        if (cur.some(c => c)) rows.push(cur);
+        cur = [];
+        if (ch === '\r') i++;
+      } else cell += ch;
+    }
+  }
+  cur.push(cell.trim());
+  if (cur.some(c => c)) rows.push(cur);
+  return rows;
+}
+
+// ── Field getter (case-insensitive, strips * and whitespace) ──
+function makeGetter(headers) {
+  const norm = headers.map(h => h.toLowerCase().replace(/\s*\*\s*/g, '').trim());
+  return (row, ...keys) => {
+    for (const k of keys) {
+      const i = norm.indexOf(k.toLowerCase().trim());
+      if (i >= 0 && row[i] !== undefined) return (row[i] || '').trim();
+    }
+    return '';
+  };
+}
+
+// ── Validation helpers ──
+const VALID_STATUS   = ['todo','in-progress','done'];
+const VALID_PRIORITY = ['low','medium','high'];
+const VALID_BSTATUS  = ['unbilled','billed','collected'];
+const VALID_STYPE    = ['adhoc','recurring'];
+const UUID_RE        = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DATE_RE        = /^\d{4}-\d{2}-\d{2}$/;
+
+function validateRow(type, get, row) {
+  const errs = [];
+  if (type === 'clients') {
+    if (!get(row, 'name')) errs.push('name is required');
+  } else if (type === 'tasks') {
+    if (!get(row, 'title')) errs.push('title is required');
+    const st = get(row, 'status');
+    if (st && !VALID_STATUS.includes(st)) errs.push(`invalid status "${st}" (todo/in-progress/done)`);
+    const pr = get(row, 'priority');
+    if (pr && !VALID_PRIORITY.includes(pr)) errs.push(`invalid priority "${pr}" (low/medium/high)`);
+    const hrs = get(row, 'hours');
+    if (hrs && isNaN(parseFloat(hrs))) errs.push('hours must be a number');
+    const ba = get(row, 'billing amount', 'billing_amount');
+    if (ba && isNaN(parseFloat(ba))) errs.push('billing amount must be a number');
+    const due = get(row, 'due date', 'due_date');
+    if (due && !DATE_RE.test(due)) errs.push(`due date must be YYYY-MM-DD, got "${due}"`);
+  } else if (type === 'services') {
+    if (!get(row, 'name')) errs.push('name is required');
+    const st = get(row, 'type', 'service type');
+    if (st && !VALID_STYPE.includes(st)) errs.push(`type must be adhoc or recurring`);
+  }
+  return errs;
+}
+
+// ── Upsert: update if ID exists, insert if not ──
+async function upsertRow(table, id, payload) {
+  if (id && UUID_RE.test(id)) {
+    // Check if row exists in our local cache first
+    const store = table === 'clients' ? clients : table === 'tasks' ? tasks : services;
+    const exists = store.find(r => r.id === id);
+    if (exists) {
+      // PATCH — only send non-empty fields (preserve existing data)
+      const patch = {};
+      for (const [k, v] of Object.entries(payload)) {
+        if (v !== '' && v !== null && v !== undefined) patch[k] = v;
+      }
+      patch.updated_at = new Date().toISOString();
+      return dbUpd(table, id, patch);
+    }
+    // ID given but doesn't exist — insert with that ID not possible via SDK easily, fall through to insert
+  }
+  return dbIns(table, { workspace_id: currentWorkspace.id, ...payload });
+}
+
+// ── Export ──
+function exportCSV(type = 'tasks') {
   const cm = cmap();
   let rows, fname;
-  if (type==='tasks' || type==='billing') {
-    const heads = type==='billing'
-      ? ['Client','Task','Status','Hours','Billing Amount','Billing Status','Due Date']
-      : ['ID','Title','Description','Status','Priority','Assignee','Tags','Client','Service','Service Period','Due Date','Scheduled Date','Hours','Billing Amount','Billing Status','Created At'];
-    rows = [heads];
-    tasks.forEach(t => {
-      const cl = cm[t.client_id]?.name||'';
-      const svc = services.find(s=>s.id===t.service_id)?.name||'';
-      if (type==='billing') {
-        rows.push([cl,t.title,t.status,t.hours||0,t.billing_amount||0,t.billing_status||'unbilled',t.due_date||'']);
-      } else {
-        rows.push([t.id,t.title,t.description||'',t.status,t.priority,t.assignee_name||'',(t.tags||[]).join(';'),cl,svc,t.service_period||'',t.due_date||'',t.scheduled_date||'',t.hours||0,t.billing_amount||0,t.billing_status||'unbilled',t.created_at||'']);
-      }
-    });
-    fname = type==='billing' ? `billing-${toDay()}.csv` : `tasks-${toDay()}.csv`;
-  } else if (type==='clients') {
-    rows = [['ID','Name','Company','Email','Phone','Rate','Currency','Notes','Created At']];
-    clients.forEach(c=>rows.push([c.id,c.name,c.company||'',c.email||'',c.phone||'',c.rate||0,c.currency||'INR',c.notes||'',c.created_at||'']));
+  if (type === 'tasks') {
+    rows = [['id','title','description','status','priority','assignee_name','tags','client_name','service_name','service_period','due_date','scheduled_date','hours','billing_amount','billing_status','archived','created_at']];
+    tasks.forEach(t => rows.push([
+      t.id, t.title, t.description||'', t.status, t.priority,
+      t.assignee_name||'', (t.tags||[]).join(';'),
+      cm[t.client_id]?.name||'',
+      services.find(s=>s.id===t.service_id)?.name||'',
+      t.service_period||'', t.due_date||'', t.scheduled_date||'',
+      t.hours||0, t.billing_amount||0, t.billing_status||'unbilled',
+      t.archived?'true':'false', t.created_at||''
+    ]));
+    fname = `tasks-${toDay()}.csv`;
+  } else if (type === 'clients') {
+    rows = [['id','name','company','email','phone','rate','currency','notes','archived','created_at']];
+    clients.forEach(c => rows.push([c.id,c.name,c.company||'',c.email||'',c.phone||'',c.rate||0,c.currency||'INR',c.notes||'',c.archived?'true':'false',c.created_at||'']));
     fname = `clients-${toDay()}.csv`;
-  } else if (type==='services') {
-    rows = [['ID','Name','Category','Type','Steps (semicolon separated)','Documents (semicolon separated)','Created At']];
-    services.forEach(s=>rows.push([s.id,s.name,s.category||'',s.service_type||'adhoc',(s.sub_services||[]).map(x=>x.title).join(';'),(s.document_checklist||[]).map(x=>x.title).join(';'),s.created_at||'']));
+  } else if (type === 'services') {
+    rows = [['id','name','category','service_type','steps','documents','archived','created_at']];
+    services.forEach(s => rows.push([s.id,s.name,s.category||'',s.service_type||'adhoc',(s.sub_services||[]).map(x=>x.title).join(';'),(s.document_checklist||[]).map(x=>x.title).join(';'),s.archived?'true':'false',s.created_at||'']));
     fname = `services-${toDay()}.csv`;
+  } else if (type === 'billing') {
+    rows = [['client_name','task_title','status','hours','billing_amount','billing_status','due_date']];
+    tasks.filter(t=>!t.archived).forEach(t => rows.push([cm[t.client_id]?.name||'',t.title,t.status,t.hours||0,t.billing_amount||0,t.billing_status||'unbilled',t.due_date||'']));
+    fname = `billing-${toDay()}.csv`;
   }
   dl(toCSV(rows), fname, 'text/csv');
-  showToast('✓ Exported: ' + fname);
+  showToast(`✓ Exported ${rows.length - 1} rows → ${fname}`);
 }
 
-// ── Full JSON backup (all tables) ──
-function exportFullJSON(){
-  const backup = { version:2, exported_at:new Date().toISOString(), workspace: { id:currentWorkspace?.id, name:currentWorkspace?.name }, clients, tasks, services, members };
-  dl(JSON.stringify(backup,null,2), `taskflow-full-backup-${toDay()}.json`, 'application/json');
+function exportFullJSON() {
+  const backup = {
+    version: 3, exported_at: new Date().toISOString(),
+    workspace: { id: currentWorkspace?.id, name: currentWorkspace?.name },
+    clients, tasks, services, members
+  };
+  dl(JSON.stringify(backup, null, 2), `taskflow-full-backup-${toDay()}.json`, 'application/json');
   showToast('✓ Full backup exported');
 }
-// Keep old name working
-function exportJSON(){ exportFullJSON(); }
+function exportJSON() { exportFullJSON(); }
 
-// ── Download blank template ──
-function downloadTemplate(type){
+// ── Templates ──
+function downloadTemplate(type) {
   let rows;
-  if (type==='clients') {
+  if (type === 'clients') {
     rows = [
-      ['Name *','Company','Email','Phone','Rate (per hr)','Currency','Notes'],
-      ['Rahul Sharma','Sharma Enterprises','rahul@sharma.com','+91 98765 43210','1500','INR','Key client - GST monthly'],
-      ['Priya Mehta','Mehta & Co','priya@mehta.com','+91 98765 00000','2000','INR','']
+      ['id','name','company','email','phone','rate','currency','notes'],
+      ['(leave blank for new)','Rahul Sharma','Sharma Enterprises','rahul@sharma.com','+91 98765 43210','1500','INR','GST monthly'],
+      ['(leave blank for new)','Priya Mehta','Mehta & Co','priya@mehta.com','','2000','INR','']
     ];
-  } else if (type==='tasks') {
+  } else if (type === 'tasks') {
     rows = [
-      ['Title *','Description','Client Name','Service Name','Status','Priority','Due Date (YYYY-MM-DD)','Hours','Billing Amount','Billing Status','Assignee Name'],
-      ['GST Filing Apr 2025','Monthly GST return','Sharma Enterprises','GST Filing','todo','high','2025-04-20','2','2000','unbilled',''],
-      ['ITR Filing FY24-25','Income tax return','Mehta & Co','ITR Filing','in-progress','medium','2025-07-31','4','5000','unbilled','']
+      ['id','title','description','client_name','service_name','status','priority','due_date','hours','billing_amount','billing_status','assignee_name'],
+      ['(blank=new)','GST Filing Apr 2025','Monthly GST','Sharma Enterprises','GST Monthly Filing','todo','high','2025-04-20','2','2000','unbilled',''],
+      ['(blank=new)','ITR Filing FY24-25','Income tax return','Mehta & Co','ITR Filing','in-progress','medium','2025-07-31','4','5000','unbilled','']
     ];
-  } else if (type==='services') {
+  } else if (type === 'services') {
     rows = [
-      ['Name *','Category','Type (adhoc/recurring)','Steps (semicolon separated)','Documents (semicolon separated)'],
-      ['GST Monthly Filing','Tax','recurring','Collect invoices;Reconcile GSTR-2B;Prepare GSTR-3B;File return;Share acknowledgement','Sales invoices;Purchase invoices;Bank statement'],
-      ['ITR Filing','Tax','adhoc','Collect documents;Compute income;Prepare return;Review with client;File ITR','Form 16;Bank statements;Investment proofs;Rental income docs']
+      ['id','name','category','type','steps','documents'],
+      ['(blank=new)','GST Monthly Filing','Tax','recurring','Collect invoices;Reconcile GSTR-2B;Prepare GSTR-3B;File;Send ack','Sales invoices;Purchase invoices;Bank statement'],
+      ['(blank=new)','ITR Filing','Tax','adhoc','Collect docs;Compute income;Prepare return;Review;File','Form 16;Bank statements;Investment proofs']
     ];
   }
   dl(toCSV(rows), `${type}-template.csv`, 'text/csv');
-  showToast('✓ Template downloaded — fill it and import');
+  showToast('✓ Template downloaded — fill it in Excel then import');
 }
 
-// ── Import CSV ──
-async function importCSV(input){
-  const file = input.files[0]; if(!file) return;
+// ── Import CSV with preview modal ──
+async function importCSV(input) {
+  const file = input.files[0]; if (!file) return;
   const text = await file.text();
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) { showToast('⚠ File is empty or has only headers'); input.value=''; return; }
-  const headers = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
-  const parseRow = (line) => {
-    const res=[]; let cur='',inQ=false;
-    for(const ch of line){ if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){res.push(cur.trim());cur='';}else{cur+=ch;} }
-    res.push(cur.trim()); return res;
-  };
-  const rows = lines.slice(1).map(parseRow).filter(r=>r.some(c=>c));
+  const allRows = parseCSV(text);
+  if (allRows.length < 2) { showToast('⚠ File is empty or has no data rows'); input.value = ''; return; }
 
-  // Detect type by headers
-  const isClients = headers.includes('name *') || (headers.includes('name') && headers.includes('company'));
-  const isServices = headers.includes('steps (semicolon separated)') || headers.includes('type (adhoc/recurring)');
-  const isTasks = headers.includes('title *') || headers.includes('title');
+  const headers = allRows[0];
+  const dataRows = allRows.slice(1).filter(r => r.some(c => c));
+  const get = makeGetter(headers);
+  const norm = h => h.toLowerCase().replace(/\s*\*\s*/g,'').trim();
+  const hset = new Set(headers.map(norm));
 
-  const get = (row, ...names) => { for(const n of names){ const i=headers.findIndex(h=>h===n||h===n+' *');if(i>=0)return row[i]?.replace(/^"|"$/g,'')||''; } return ''; };
+  // Auto-detect table type
+  let type;
+  if (hset.has('name') && (hset.has('company') || hset.has('rate'))) type = 'clients';
+  else if (hset.has('title') || hset.has('assignee_name') || hset.has('due_date') || hset.has('billing_amount')) type = 'tasks';
+  else if (hset.has('steps') || hset.has('service_type') || hset.has('type')) type = 'services';
+  if (!type) { showToast('⚠ Cannot detect type — use the downloaded template'); input.value = ''; return; }
 
-  if (!isClients && !isTasks && !isServices) {
-    showToast('⚠ Cannot detect type. Use the template.'); input.value=''; return;
-  }
+  // Validate all rows, build preview
+  const cByName = Object.fromEntries(clients.map(c => [c.name.toLowerCase().trim(), c.id]));
+  const sByName = Object.fromEntries(services.map(s => [s.name.toLowerCase().trim(), s.id]));
+  const existingIds = new Set((type==='clients'?clients:type==='tasks'?tasks:services).map(r=>r.id));
 
-  const typeName = isClients?'clients':isServices?'services':'tasks';
-  confirm2(`Import ${typeName}?`,
-    `Found ${rows.length} rows to import as ${typeName}. Existing data is kept — duplicates may be created.`,
-    `Import ${rows.length} rows`, 'btn-primary',
+  const results = dataRows.map((row, i) => {
+    const id = get(row, 'id').replace(/[()a-z =]/gi,'').trim();
+    const errs = validateRow(type, get, row);
+    const action = (id && UUID_RE.test(id) && existingIds.has(id)) ? 'update' : 'insert';
+    return { row, i: i+2, id: UUID_RE.test(id||'') ? id : null, action, errs };
+  });
+
+  const valid   = results.filter(r => !r.errs.length);
+  const invalid = results.filter(r => r.errs.length);
+
+  // Show preview modal
+  showImportPreview(type, valid, invalid, async () => {
+    closeModal('import-preview-overlay');
+    setSyncState('syncing');
+    let inserted = 0, updated = 0, failed = 0;
+    const failDetails = [];
+
+    if (type === 'clients') {
+      for (const {row, id, action} of valid) {
+        const payload = {};
+        const name = get(row,'name'); if (name) payload.name = name;
+        const company = get(row,'company'); if (company) payload.company = company;
+        const email = get(row,'email'); if (email) payload.email = email;
+        const phone = get(row,'phone'); if (phone) payload.phone = phone;
+        const rate = get(row,'rate'); if (rate) payload.rate = parseFloat(rate)||0;
+        const currency = get(row,'currency'); if (currency) payload.currency = currency;
+        const notes = get(row,'notes'); if (notes) payload.notes = notes;
+        try { await upsertRow('clients', id, payload); action==='update'?updated++:inserted++; }
+        catch(e) { failed++; failDetails.push(`Row: ${payload.name} — ${e.message}`); }
+      }
+    } else if (type === 'services') {
+      for (const {row, id, action} of valid) {
+        const payload = {};
+        const name = get(row,'name'); if (name) payload.name = name;
+        const cat = get(row,'category'); if (cat) payload.category = cat;
+        const stype = get(row,'type','service_type'); if (stype) payload.service_type = stype||'adhoc';
+        const steps = get(row,'steps');
+        if (steps) payload.sub_services = steps.split(';').filter(Boolean).map((t,i)=>({id:String(i+1),title:t.trim()}));
+        const docs = get(row,'documents');
+        if (docs) payload.document_checklist = docs.split(';').filter(Boolean).map((t,i)=>({id:String(i+1),title:t.trim()}));
+        try { await upsertRow('services', id, payload); action==='update'?updated++:inserted++; }
+        catch(e) { failed++; failDetails.push(`Row: ${payload.name} — ${e.message}`); }
+      }
+    } else {
+      for (const {row, id, action} of valid) {
+        const payload = {};
+        const title = get(row,'title'); if (title) payload.title = title;
+        const desc = get(row,'description'); if (desc) payload.description = desc;
+        const cname = get(row,'client_name','client name','client').toLowerCase().trim();
+        if (cname && cByName[cname]) payload.client_id = cByName[cname];
+        const sname = get(row,'service_name','service name','service').toLowerCase().trim();
+        if (sname && sByName[sname]) payload.service_id = sByName[sname];
+        const status = get(row,'status'); if (status) payload.status = status;
+        const priority = get(row,'priority'); if (priority) payload.priority = priority;
+        const due = get(row,'due_date','due date'); if (due && DATE_RE.test(due)) payload.due_date = due;
+        const sched = get(row,'scheduled_date','scheduled date'); if (sched && DATE_RE.test(sched)) payload.scheduled_date = sched;
+        const hrs = get(row,'hours'); if (hrs) payload.hours = parseFloat(hrs)||0;
+        const ba = get(row,'billing_amount','billing amount'); if (ba) payload.billing_amount = parseFloat(ba)||0;
+        const bs = get(row,'billing_status','billing status'); if (bs) payload.billing_status = bs;
+        const asgn = get(row,'assignee_name','assignee name'); if (asgn) payload.assignee_name = asgn;
+        const tags = get(row,'tags'); payload.tags = tags ? tags.split(';').filter(Boolean) : [];
+        payload.created_by = currentUser.id;
+        try { await upsertRow('tasks', id, payload); action==='update'?updated++:inserted++; }
+        catch(e) { failed++; failDetails.push(`Row: ${payload.title} — ${e.message}`); }
+      }
+    }
+
+    await loadAll();
+    const msg = `✓ ${inserted} inserted · ${updated} updated${failed?' · '+failed+' failed':''}`;
+    showToast(msg, 4000);
+    if (failed) {
+      // Show failed details
+      setTimeout(() => {
+        document.getElementById('confirm-title').textContent = 'Import Summary';
+        document.getElementById('confirm-msg').innerHTML = `<strong style="color:var(--success)">${inserted} inserted, ${updated} updated</strong><br/><br/><strong style="color:var(--danger)">${failed} failed:</strong><br/>${failDetails.slice(0,5).map(d=>`<div style="font-size:11px;margin-top:4px;color:var(--muted)">${d}</div>`).join('')}`;
+        document.getElementById('confirm-action-btn').textContent = 'OK';
+        document.getElementById('confirm-action-btn').className = 'btn btn-primary';
+        document.getElementById('confirm-action-btn').onclick = () => closeModal('confirm-overlay');
+        openModal('confirm-overlay');
+      }, 300);
+    }
+  });
+  input.value = '';
+}
+
+// ── Import preview modal renderer ──
+function showImportPreview(type, valid, invalid, onConfirm) {
+  const el = document.getElementById('import-preview-body');
+  const insertCount = valid.filter(r=>r.action==='insert').length;
+  const updateCount = valid.filter(r=>r.action==='update').length;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:color-mix(in srgb,var(--success) 10%,var(--surf2));border:1px solid color-mix(in srgb,var(--success) 25%,var(--border));border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--success)">${insertCount}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">New inserts</div>
+      </div>
+      <div style="background:color-mix(in srgb,var(--info) 10%,var(--surf2));border:1px solid color-mix(in srgb,var(--info) 25%,var(--border));border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--info)">${updateCount}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Updates</div>
+      </div>
+      <div style="background:color-mix(in srgb,var(--danger) 10%,var(--surf2));border:1px solid color-mix(in srgb,var(--danger) 25%,var(--border));border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--danger)">${invalid.length}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Skipped (errors)</div>
+      </div>
+    </div>
+    ${invalid.length ? `
+    <div style="background:color-mix(in srgb,var(--danger) 8%,var(--surf2));border:1px solid color-mix(in srgb,var(--danger) 20%,var(--border));border-radius:8px;padding:10px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--danger);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Validation Errors (rows will be skipped)</div>
+      ${invalid.slice(0,5).map(r=>`<div style="font-size:12px;color:var(--muted);padding:3px 0;border-bottom:1px solid var(--border)">Row ${r.i}: ${r.errs.join(', ')}</div>`).join('')}
+      ${invalid.length>5?`<div style="font-size:11px;color:var(--muted);margin-top:4px">...and ${invalid.length-5} more</div>`:''}
+    </div>`:''
+    }
+    ${valid.length ? `
+    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Preview (first 5 valid rows)</div>
+    ${valid.slice(0,5).map(r=>`<div style="font-size:12px;padding:5px 8px;background:var(--surf2);border-radius:6px;margin-bottom:4px;display:flex;align-items:center;gap:8px"><span class="badge ${r.action==='update'?'badge-progress':'badge-done'}">${r.action}</span><span>${r.row[0]||''} ${r.row[1]||''}</span></div>`).join('')}`:
+    `<div style="font-size:13px;color:var(--danger);text-align:center;padding:10px">No valid rows to import.</div>`
+    }`;
+
+  document.getElementById('import-preview-confirm').onclick = valid.length ? onConfirm : null;
+  document.getElementById('import-preview-confirm').disabled = !valid.length;
+  openModal('import-preview-overlay');
+}
+
+// ── JSON restore ──
+async function importJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  let data;
+  try { data = JSON.parse(await file.text()); }
+  catch(e) { showToast('⚠ Invalid JSON file'); input.value=''; return; }
+  const ic = data.clients||[], it = data.tasks||[], is = data.services||[];
+  confirm2('Restore Backup',
+    `Restore ${ic.length} clients, ${it.length} tasks, ${is.length} services? Existing records with matching IDs will be updated. New records will be inserted.`,
+    'Restore', 'btn-primary',
     async () => {
-      closeModal('confirm-overlay');
-      setSyncState('syncing');
-      let ok=0, fail=0;
-      if (isClients) {
-        for(const r of rows){
-          const name=get(r,'name *','name'); if(!name){fail++;continue;}
-          try{
-            await dbIns('clients',{workspace_id:currentWorkspace.id,name,company:get(r,'company')||null,email:get(r,'email')||null,phone:get(r,'phone')||null,rate:parseFloat(get(r,'rate (per hr)','rate'))||0,currency:get(r,'currency')||'INR',notes:get(r,'notes')||null});
-            ok++;
-          }catch(e){fail++;}
-        }
-      } else if (isServices) {
-        for(const r of rows){
-          const name=get(r,'name *','name'); if(!name){fail++;continue;}
-          const steps=(get(r,'steps (semicolon separated)','steps')||'').split(';').filter(Boolean).map((t,i)=>({id:String(i+1),title:t.trim()}));
-          const docs=(get(r,'documents (semicolon separated)','documents')||'').split(';').filter(Boolean).map((t,i)=>({id:String(i+1),title:t.trim()}));
-          try{
-            await dbIns('services',{workspace_id:currentWorkspace.id,name,category:get(r,'category')||null,service_type:get(r,'type (adhoc/recurring)','type')||'adhoc',sub_services:steps,document_checklist:docs});
-            ok++;
-          }catch(e){fail++;}
-        }
-      } else {
-        // Tasks — try to match client name and service name
-        await loadAll();
-        const cByName = Object.fromEntries(clients.map(c=>[c.name.toLowerCase(),c.id]));
-        const sByName = Object.fromEntries(services.map(s=>[s.name.toLowerCase(),s.id]));
-        for(const r of rows){
-          const title=get(r,'title *','title'); if(!title){fail++;continue;}
-          const clientName=(get(r,'client name','client')||'').toLowerCase();
-          const svcName=(get(r,'service name','service')||'').toLowerCase();
-          const dueRaw=get(r,'due date (yyyy-mm-dd)','due date','due_date');
-          const due=dueRaw&&/^\d{4}-\d{2}-\d{2}$/.test(dueRaw)?dueRaw:null;
-          try{
-            await dbIns('tasks',{
-              workspace_id:currentWorkspace.id, created_by:currentUser.id,
-              title,
-              description:get(r,'description')||null,
-              client_id:cByName[clientName]||null,
-              service_id:sByName[svcName]||null,
-              status:get(r,'status')||'todo',
-              priority:get(r,'priority')||'medium',
-              due_date:due,
-              hours:parseFloat(get(r,'hours'))||0,
-              billing_amount:parseFloat(get(r,'billing amount','billing_amount'))||0,
-              billing_status:get(r,'billing status','billing_status')||'unbilled',
-              assignee_name:get(r,'assignee name','assignee')||null,
-              tags:[]
-            });
-            ok++;
-          }catch(e){fail++;}
-        }
+      closeModal('confirm-overlay'); setSyncState('syncing');
+      let ins=0, upd=0, fail=0;
+      for (const c of ic) {
+        const {id, ...r} = c; r.workspace_id = currentWorkspace.id;
+        try { await upsertRow('clients', id, r); clients.find(x=>x.id===id)?upd++:ins++; }
+        catch(e) { fail++; }
+      }
+      for (const s of is) {
+        const {id, ...r} = s; r.workspace_id = currentWorkspace.id;
+        try { await upsertRow('services', id, r); services.find(x=>x.id===id)?upd++:ins++; }
+        catch(e) { fail++; }
+      }
+      for (const t of it) {
+        const {id, ...r} = t; r.workspace_id = currentWorkspace.id; r.created_by = currentUser.id;
+        try { await upsertRow('tasks', id, r); tasks.find(x=>x.id===id)?upd++:ins++; }
+        catch(e) { fail++; }
       }
       await loadAll();
-      showToast(`✓ Imported ${ok} ${typeName}${fail?' · '+fail+' failed':''}`);
+      showToast(`✓ ${ins} inserted · ${upd} updated${fail?' · '+fail+' failed':''}`, 4000);
     }
   );
-  input.value='';
-}
-
-// ── Import JSON (full backup restore) ──
-async function importJSON(input){
-  const file=input.files[0]; if(!file) return;
-  let data;
-  try{ data=JSON.parse(await file.text()); }
-  catch(e){ showToast('⚠ Invalid JSON file'); input.value=''; return; }
-  const ic=data.clients||[], it=data.tasks||[], is=data.services||[];
-  confirm2('Restore Backup',
-    `Import ${ic.length} clients, ${it.length} tasks, ${is.length} services? Existing data is kept.`,
-    'Restore','btn-primary',
-    async()=>{
-      closeModal('confirm-overlay'); setSyncState('syncing');
-      for(const c of ic){const{id,...r}=c;r.workspace_id=currentWorkspace.id;await dbIns('clients',r).catch(()=>{});}
-      for(const s of is){const{id,...r}=s;r.workspace_id=currentWorkspace.id;await dbIns('services',r).catch(()=>{});}
-      for(const t of it){const{id,...r}=t;r.workspace_id=currentWorkspace.id;r.created_by=currentUser.id;await dbIns('tasks',r).catch(()=>{});}
-      showToast(`✓ Restored ${ic.length} clients · ${it.length} tasks · ${is.length} services`);
-      await loadAll();
-    }
-  );
-  input.value='';
+  input.value = '';
 }
 
 // ════════════════════════════════════════════════════════════════
